@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:media_radar/constants/Constant.dart';
+import 'package:media_radar/views/Favourites/SelectedList.dart';
+import 'package:media_radar/views/HomePages/HomeContent.dart';
+import 'package:media_radar/views/accounts/Profile.dart';
+import 'package:media_radar/views/dailies/Daily.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -8,52 +13,67 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  int currentIndex = 0;
+  final List<Widget> pages = const [
+    HomeContent(),
+    Daily(),
+    SelectedList(),
+    Profile(),
+  ];
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          toolbarHeight: 80,
-          leading: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.grey.shade300),
-              ),
-              child: IconButton(
-                icon: const Icon(
-                  Icons.more_horiz,
-                  color: Colors.black,
-                ),
-                onPressed: () {},
+        body: pages[currentIndex],
+        bottomNavigationBar: Container(
+          decoration: BoxDecoration(
+            border: Border(
+              top: BorderSide(
+                color: Colors.grey.shade300,
+                width: 1,
               ),
             ),
           ),
-
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.grid_view, color: Colors.black),
-              onPressed: () {},
-            ),
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-              decoration: const BoxDecoration(
-                color: Colors.green,
-                shape: BoxShape.circle,
+          child: BottomNavigationBar(
+            currentIndex: currentIndex,
+            onTap: (index) {
+              setState(() {
+                currentIndex = index;
+              });
+            },
+            type: BottomNavigationBarType.fixed,
+            selectedItemColor: Constant.baseColor,
+            showSelectedLabels: false,
+            showUnselectedLabels: false,
+            backgroundColor: Colors.white,
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home_outlined, size: 30,fontWeight: FontWeight.w400,),
+                label: 'Ana səhifə',
               ),
-              child: IconButton(
-                icon: const Icon(Icons.add, color: Colors.white),
-                onPressed: () {},
+              BottomNavigationBarItem(
+                icon: Icon(Icons.article),
+                label: 'Gündəm',
               ),
-            ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.bookmark),
+                label: 'Seçilmişlər',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.settings),
+                label: 'Parametrlər',
+              ),
+            ],
+          ),
+        ),
 
-          ],
-        )
+
       ),
     );
   }
 }
+
+
+
+

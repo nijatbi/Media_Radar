@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:media_radar/constants/Constant.dart';
+import 'package:media_radar/views/accounts/Profile.dart';
 
 class Account extends StatefulWidget {
   const Account({super.key});
@@ -15,8 +16,81 @@ class _AccountState extends State<Account> {
     {'icon': Icons.notifications_none_rounded, 'name': 'Bildirişlər'},
     {'icon': Icons.search, 'name': 'Ətraflı axtarış'},
     {'icon': Icons.language, 'name': 'Dil seçimi'},
-
   ];
+
+  void _showLanguageBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => Navigator.pop(context),
+          child: Container(
+            color: Colors.transparent,
+            child: GestureDetector(
+              onTap: () {},
+              child: Container(
+                margin: const EdgeInsets.all(10),
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 8),
+                    Text(
+                      'Dil seçimi',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF3C3C4399),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    const Divider(height: 1, thickness: 1),
+                    ListTile(
+                      title:  Center(child: Text('Azərbaycan',style: TextStyle(
+                          fontSize: 20,
+
+                          fontWeight:FontWeight.w500 ,color: Constant.languageAlertColor),)),
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    const Divider(height: 1, thickness: 1),
+                    ListTile(
+                      title:  Center(child: Text('İngilis',style: TextStyle(
+                          fontSize: 20,
+                          fontWeight:FontWeight.w500 ,color: Constant.languageAlertColor
+                      ),)),
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    const Divider(height: 1, thickness: 1),
+                    ListTile(
+                      title: const Center(
+                        child: Text('Ləğv et', style: TextStyle(color: Colors.red)),
+                      ),
+                      onTap: () => Navigator.pop(context),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -38,7 +112,6 @@ class _AccountState extends State<Account> {
               ),
               const SizedBox(height: 20),
 
-              // Hesab Card
               Card(
                 elevation: 0.4,
                 margin: EdgeInsets.zero,
@@ -46,38 +119,48 @@ class _AccountState extends State<Account> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 color: Colors.white,
-                child: ListTile(
-                  contentPadding: EdgeInsets.only(left: 5,right: 5),
-                  leading: Container(
-                    width: 50,
-                    height: 50,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                        image: AssetImage('assets/images/images.jpg'),
-                        fit: BoxFit.cover,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const Profile()));
+                  },
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.only(left: 5, right: 5),
+                    leading: Container(
+                      width: 50,
+                      height: 50,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        image: DecorationImage(
+                          image: AssetImage('assets/images/images.jpg'),
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
-                  ),
-                  title: Text(
-                    'Hesab',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Constant.inputHintTextColor,
+                    title: Text(
+                      'Hesab',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Constant.inputHintTextColor,
+                      ),
                     ),
-                  ),
-                  subtitle: const Text(
-                    'Leyla',
-                    style: TextStyle(
-                        fontSize: 17, fontWeight: FontWeight.w500),
-                  ),
-                  trailing: IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.keyboard_arrow_right_rounded,color: Color(0xFFADADAD),),
+                    subtitle: const Text(
+                      'Leyla',
+                      style:
+                      TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
+                    ),
+                    trailing: const Icon(
+                      Icons.keyboard_arrow_right_rounded,
+                      color: Color(0xFFADADAD),
+                    ),
                   ),
                 ),
               ),
-              SizedBox(height: 20,),
+
+              const SizedBox(height: 20),
+
               Card(
                 elevation: 0,
                 margin: EdgeInsets.zero,
@@ -87,10 +170,12 @@ class _AccountState extends State<Account> {
                 color: Colors.white,
                 child: Column(
                   children: moreOptions.map<Widget>((x) {
-                    // Disabled elementi grey etmək üçün
-                    bool isDisabled = x['name'] == 'Bildirişlər' || x['name'] == 'Ətraflı axtarış';
-                    Color textColor = isDisabled ? Constant.inputHintTextColor : Colors.black;
-                    Color iconColor = isDisabled ? Constant.inputHintTextColor : Colors.black;
+                    bool isDisabled = x['name'] == 'Bildirişlər' ||
+                        x['name'] == 'Ətraflı axtarış';
+                    Color textColor =
+                    isDisabled ? Constant.inputHintTextColor : Colors.black;
+                    Color iconColor =
+                    isDisabled ? Constant.inputHintTextColor : Colors.black;
 
                     return Column(
                       children: [
@@ -101,7 +186,10 @@ class _AccountState extends State<Account> {
                           ),
                           title: Text(
                             x['name'],
-                            style: TextStyle(color: textColor),
+                            style: TextStyle(
+                                color: textColor,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400),
                           ),
                           trailing: const Icon(
                             Icons.keyboard_arrow_right_rounded,
@@ -110,7 +198,9 @@ class _AccountState extends State<Account> {
                           onTap: isDisabled
                               ? null
                               : () {
-
+                            if (x['name'] == 'Dil seçimi') {
+                              _showLanguageBottomSheet();
+                            }
                           },
                         ),
                         Divider(height: 1, color: Constant.inputBorderColor),
@@ -120,7 +210,8 @@ class _AccountState extends State<Account> {
                 ),
               ),
 
-              SizedBox(height: 20,),
+              const SizedBox(height: 20),
+
               Card(
                 elevation: 0,
                 margin: EdgeInsets.zero,
@@ -129,21 +220,22 @@ class _AccountState extends State<Account> {
                 ),
                 color: Colors.white,
                 child: ListTile(
-                  leading: Icon(
+                  leading: const Icon(
                     Icons.logout,
                     color: Colors.black,
                   ),
-                  title: Text(
+                  title: const Text(
                     'Çıxış',
                     style: TextStyle(color: Colors.black),
                   ),
-                  trailing: const Icon(Icons.keyboard_arrow_right_rounded,color: Color(0xFFADADAD),),
+                  trailing: const Icon(
+                    Icons.keyboard_arrow_right_rounded,
+                    color: Color(0xFFADADAD),
+                  ),
                   onTap: () {
-                    // Burada click funksiyasını yaz
                   },
                 ),
-              )
-
+              ),
             ],
           ),
         ),

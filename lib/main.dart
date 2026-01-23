@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:media_radar/routes.dart';
+import 'package:media_radar/views/Favourites/SelectedList.dart';
 import 'package:media_radar/views/HomePages/HomePage.dart';
 import 'package:media_radar/views/RegisterAndLogin/Login.dart';
 import 'package:media_radar/views/accounts/Account.dart';
@@ -17,7 +18,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Media Radar',
       debugShowCheckedModeBanner: false,
-      home: Account(),
+      home: HomePage(),
+      onGenerateRoute: RouteGenerator.routeGenerator,
+
     );
   }
 }

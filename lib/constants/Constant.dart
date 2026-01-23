@@ -8,5 +8,5 @@ class Constant{
   static Text loginText2=Text('Zəhmət olmasa giriş məlumatlarınızı daxil edin',style: TextStyle(fontSize: 14,color: const Color(0xFF525866)),);
   static Text forgotPaswordText=Text('Şifrəni unutmusan?',style: TextStyle(fontSize: 14,color: Constant.forgotPasColor));
   static Color forgotPasColor=Color(0xFF1579FF);
-
+  static Color languageAlertColor=Color(0xFF007AFF);
 }
