@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:media_radar/constants/Constant.dart';
 import 'package:media_radar/views/Favourites/SelectedList.dart';
 import 'package:media_radar/views/HomePages/HomeContent.dart';
+import 'package:media_radar/views/accounts/Account.dart';
 import 'package:media_radar/views/accounts/Profile.dart';
 import 'package:media_radar/views/dailies/Daily.dart';
 
@@ -18,7 +19,7 @@ class _HomePageState extends State<HomePage> {
     HomeContent(),
     Daily(),
     SelectedList(),
-    Profile(),
+    Account(),
   ];
   @override
   Widget build(BuildContext context) {
