@@ -1,0 +1,148 @@
+import 'package:flutter/material.dart';
+import 'package:media_radar/constants/Constant.dart';
+import '../HomePages/AddCreateCategoryAppBar.dart';
+
+class CategoryAndKeyList extends StatefulWidget {
+  const CategoryAndKeyList({super.key});
+
+  @override
+  State<CategoryAndKeyList> createState() => _CategoryAndKeyListState();
+}
+
+class _CategoryAndKeyListState extends State<CategoryAndKeyList> {
+  // Demo data (API-dən gələcək data ilə əvəz olunacaq)
+  final List<Map<String, dynamic>> categoryGroups = [
+    {
+      'title': 'Azərbaycan',
+      'tags': ["Azərbaycan", "Siyasət", "İlham Əliyev"]
+    },
+    {
+      'title': 'Dünya',
+      'tags': ["ABŞ", "Avropa", "Asiya"]
+    },
+    {
+      'title': 'Dünya',
+      'tags': ["ABŞ", "Avropa", "Asiya"]
+    },
+    {
+      'title': 'Dünya',
+      'tags': ["ABŞ", "Avropa", "Asiya"]
+    },
+
+
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: Colors.white,
+
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          surfaceTintColor: Colors.transparent,
+          centerTitle: true,
+          leading: IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.keyboard_arrow_left, size: 30),
+          ),
+          title: const Text(
+            'Parametrlər',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          ),
+          actions: [
+            GestureDetector(
+              onTap: () {
+                addCategoryAppBar(context);
+              },
+              child: Container(
+                margin: const EdgeInsets.only(right: 15, left: 5),
+                width: 40,
+                height: 40,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF23C98D),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.add, color: Colors.white),
+              ),
+            )
+          ],
+        ),
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+
+              Text(
+                'Kateqoriyalar',
+                style: TextStyle(
+                  fontSize: 34,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF3F3BA3),
+                ),
+              ),
+              SizedBox(height: 20,),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: categoryGroups.length,
+                  itemBuilder: (context, index) {
+                    final group = categoryGroups[index];
+                    final isLast = index == categoryGroups.length - 1;
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 0),
+                          child: Text(
+                            group['title'],
+                            style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black),
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+
+                        Wrap(
+                          spacing: 10,
+                          runSpacing: 10,
+                          children: List.generate(
+                            group['tags'].length,
+                                (tagIndex) => _buildTag(group['tags'][tagIndex]),
+                          ),
+                        ),
+
+                        if (!isLast) ...[
+                          const SizedBox(height: 10),
+                          Divider(color: Constant.inputBorderColor, thickness: 1),
+                          const SizedBox(height: 10),
+                        ],
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTag(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: Constant.keyTextBackColor,
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+      ),
+    );
+  }
+}

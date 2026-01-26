@@ -1,5 +1,6 @@
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
+import 'package:media_radar/views/dailies/DailyNewItem.dart';
 import '../../constants/Constant.dart';
 
 class Daily extends StatefulWidget {
@@ -11,11 +12,43 @@ class Daily extends StatefulWidget {
 
 class _DailyState extends State<Daily> {
   int _currentIndex = 0;
+  List<Map<String, String>> data=[
+    {
+      'id':'1',
+      'image':"assets/images/photo.webp",
+      'title':"media.az",
+      'desc':"xeberler barede melumat xeberler barede melumat xeberler barede melumat xeberler barede melumat xeberler barede melumat "
+    ,'date' :'10.08.2025 • 15:47'
+    },
+    {
+      'image':"assets/images/Rectangle 299.png",
+      'id':'12',
 
+      'title':"media.az",
+      'desc':"xeberler barede melumat xeberler barede melumat xeberler barede melumat xeberler barede melumat xeberler barede melumat "
+      ,'date' :'10.08.2025 • 15:47'
+    },
+    {
+      'image':"assets/images/download.png",
+      'id':'13',
+
+      'title':"media.az",
+      'desc':"xeberler barede melumat xeberler barede melumat xeberler barede melumat xeberler barede melumat xeberler barede melumat "
+      ,'date' :'10.08.2025 • 15:47'
+    },
+    {
+      'image':"assets/images/images.jpg",
+      'id':'14',
+
+      'title':"media.az",
+      'desc':"xeberler barede melumat xeberler barede melumat xeberler barede melumat xeberler barede melumat xeberler barede melumat "
+      ,'date' :'10.08.2025 • 15:47'
+    },
+  ];
   @override
   Widget build(BuildContext context) {
-    double screenHeight = MediaQuery.of(context).size.height;
-    double screenWidth = MediaQuery.of(context).size.width;
+    final double screenHeight = MediaQuery.of(context).size.height;
+    final double screenWidth = MediaQuery.of(context).size.width;
 
     return SafeArea(
       child: Scaffold(
@@ -48,7 +81,7 @@ class _DailyState extends State<Daily> {
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Başlıq
+            /// BAŞLIQ
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               child: Text(
@@ -61,127 +94,46 @@ class _DailyState extends State<Daily> {
               ),
             ),
 
-            // Carousel
+            /// CAROUSEL
             Expanded(
               child: Swiper(
-                itemCount: 10,
+                itemCount: data.length,
                 layout: SwiperLayout.STACK,
-                itemWidth: screenWidth * 0.8,
-                itemHeight: screenHeight * 0.55,
+                itemWidth: screenWidth * 0.88,
+                itemHeight: screenHeight * 0.6,
                 onIndexChanged: (index) {
-                  setState(() {
-                    _currentIndex = index;
-                  });
+                  setState(() => _currentIndex = index);
                 },
+
+                customLayoutOption: CustomLayoutOption(
+                  startIndex: -1,
+                  stateCount: 3,
+                )
+                  ..addTranslate([
+                    const Offset(0, 0),
+                    const Offset(0, 28),
+                    const Offset(0, 56),
+                  ])
+                  ..addScale(
+                    [1.0, 0.94, 0.88],
+                    Alignment.center,
+                  ),
+
                 itemBuilder: (context, index) {
-                  bool isCurrent = index == _currentIndex;
-                  return Transform.translate(
-                    offset: Offset(0, isCurrent ? 0 : 20),
-                    child: Transform.scale(
-                      scale: isCurrent ? 1.0 : 0.85,
-                      child: Stack(
-                        children: [
-                          // Şəkil və transparan alt kartlar
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              image: const DecorationImage(
-                                image: AssetImage('assets/images/photo.webp'),
-                                fit: BoxFit.cover,
-                                colorFilter: ColorFilter.mode(
-                                    Colors.black26, BlendMode.darken),
-                              ),
-                            ),
-                          ),
-                          // Siyaset etiketi 45°
-                          Positioned(
-                            top: 10,
-                            left: 10,
-                            child: Transform.rotate(
-                              angle: 0.785398, // 45°
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 5, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                                child: Row(
-                                  children: const [
-                                    Icon(Icons.flag, size: 14),
-                                    SizedBox(width: 4),
-                                    Text(
-                                      'Siyaset',
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          // Alt məlumat
-                          Positioned(
-                            bottom: 10,
-                            left: 10,
-                            right: 10,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      width: 30,
-                                      height: 30,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        image: const DecorationImage(
-                                          image: AssetImage(
-                                              'assets/images/Rectangle 299.png'),
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 5),
-                                    const Text(
-                                      'media.az',
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    )
-                                  ],
-                                ),
-                                const SizedBox(height: 5),
-                                const Text(
-                                  'President of the Republic of Azerbaijan Ilham Aliyev made a speech at general debates of 75th session of United Nations General Assembly in a video format',
-                                  style: TextStyle(fontSize: 14,
-                                      fontWeight: FontWeight.w500
-
-                                      ,color: Colors.white),
-                                  maxLines: 2,
-
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                  return DailyNewItem(image: data[index]["image"]!,title: data[index]["title"]!,
+                  date: data[index]["date"]!,
+                    desc: data[index]["desc"]!,
+                    id: data[index]["id"]!,
                   );
                 },
+
                 pagination: SwiperPagination(
                   alignment: Alignment.bottomCenter,
                   builder: DotSwiperPaginationBuilder(
                     color: Colors.grey,
                     activeColor: Colors.green,
-                    size: 8.0,
-                    activeSize: 10.0,
-                    space: 4.0,
+                    size: 8,
+                    activeSize: 10,
                   ),
                 ),
               ),

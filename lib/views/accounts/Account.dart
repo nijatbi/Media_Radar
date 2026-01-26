@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:media_radar/constants/Constant.dart';
+import 'package:media_radar/views/accounts/CategoryAndKeys.dart';
 import 'package:media_radar/views/accounts/Profile.dart';
 
 class Account extends StatefulWidget {
@@ -200,6 +201,14 @@ class _AccountState extends State<Account> {
                               : () {
                             if (x['name'] == 'Dil seçimi') {
                               _showLanguageBottomSheet();
+                            }
+                            else if (x['name'] == 'Kateqoriyalar') {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CategoryAndKeyList(),
+                                ),
+                              );
                             }
                           },
                         ),

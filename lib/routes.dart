@@ -3,6 +3,7 @@ import 'package:media_radar/views/Favourites/SelectedList.dart';
 import 'package:media_radar/views/RegisterAndLogin/Login.dart';
 import 'package:media_radar/views/accounts/Account.dart';
 import 'package:media_radar/views/accounts/Profile.dart';
+import 'package:media_radar/views/dailies/NewsItem.dart';
 
 class RouteGenerator {
   static Route<dynamic> routeGenerator(RouteSettings settins) {
@@ -13,8 +14,11 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (context)=>Account());
       case '/profile':
         return MaterialPageRoute(builder: (context)=>Profile());
+      case '/categoryAndKey':
+        return MaterialPageRoute(builder: (context)=>Profile());
       case '/selectedList':
         return MaterialPageRoute(builder: (context)=>SelectedList());
+
       default:
         return MaterialPageRoute(builder: (context)=>LoginPage());
     }

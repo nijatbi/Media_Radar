@@ -9,4 +9,5 @@ class Constant{
   static Text forgotPaswordText=Text('Şifrəni unutmusan?',style: TextStyle(fontSize: 14,color: Constant.forgotPasColor));
   static Color forgotPasColor=Color(0xFF1579FF);
   static Color languageAlertColor=Color(0xFF007AFF);
+  static Color keyTextBackColor=Color(0xFFECEBFF);
 }
