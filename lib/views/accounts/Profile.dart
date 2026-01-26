@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:media_radar/constants/Constant.dart';
+import 'package:provider/provider.dart';
+
+import '../../providers/AuthProvider.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -173,6 +176,8 @@ class _ProfileState extends State<Profile> {
 
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<AuthProvider?>()?.user;
+
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -196,7 +201,6 @@ class _ProfileState extends State<Profile> {
             children: [
               const SizedBox(height: 20),
 
-              /// Profil şəkli
               Center(
                 child: Column(
                   children: [
@@ -206,7 +210,7 @@ class _ProfileState extends State<Profile> {
                       decoration: const BoxDecoration(
                         shape: BoxShape.circle,
                         image: DecorationImage(
-                          image: AssetImage('assets/images/images.jpg'),
+                          image: AssetImage('assets/images/profile-42914_640.webp'),
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -229,14 +233,13 @@ class _ProfileState extends State<Profile> {
 
               const SizedBox(height: 40),
 
-              personInfo('Leyla', 'Ad'),
+            personInfo(user?.name ?? '', 'Ad'),
               const SizedBox(height: 20),
-              personInfo('Eliyeva', 'Soyad'),
+            personInfo(user?.surname ?? '', 'Soyad'),
               const SizedBox(height: 20),
-              personInfo('Leyla', 'İstifadəçi adı'),
+          personInfo(user?.userName ?? '', 'İstifadəçi adı'),
               const SizedBox(height: 30),
 
-              /// Şifrə dəyiş
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(

@@ -3,6 +3,11 @@ import '../../constants/Constant.dart';
 import '../accounts/TagItem.dart';
 
 void addCategoryAppBar(BuildContext context) {
+  final TextEditingController categoryCtrl = TextEditingController();
+  final TextEditingController keywordCtrl = TextEditingController();
+  List<String> keywords = [];
+  var _formKey = GlobalKey<FormState>();
+  bool showAddIcon = false;
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -57,6 +62,7 @@ void addCategoryAppBar(BuildContext context) {
                         ),
                         const SizedBox(height: 30),
                         Form(
+                          key: _formKey,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -71,6 +77,7 @@ void addCategoryAppBar(BuildContext context) {
                               ),
                               const SizedBox(height: 10),
                               TextFormField(
+                                controller: categoryCtrl,
                                 keyboardType: TextInputType.text,
                                 decoration: InputDecoration(
                                   contentPadding: const EdgeInsets.symmetric(
@@ -88,6 +95,7 @@ void addCategoryAppBar(BuildContext context) {
                                     borderSide: BorderSide(
                                         color: Constant.inputBorderColor, width: 1),
                                   ),
+
                                 ),
                               ),
                               const SizedBox(height: 20),
@@ -96,8 +104,25 @@ void addCategoryAppBar(BuildContext context) {
                                       fontSize: 14, fontWeight: FontWeight.w500)),
                               const SizedBox(height: 10),
                               TextFormField(
+                                controller: keywordCtrl,
                                 keyboardType: TextInputType.text,
+                                onChanged: (value) {
+                                  modalSetState(() {
+                                    showAddIcon = value.trim().length >= 3;
+                                  });
+                                },
+
                                 decoration: InputDecoration(
+                                  suffixIcon: showAddIcon
+                                      ? Container(
+                                    child: IconButton(
+                                      icon: const Icon(Icons.add, color: Color(0xFF3F3BA3)),
+                                      onPressed: () {
+                                        print(keywordCtrl.text);
+                                      },
+                                    ),
+                                  )
+                                      : null,
                                   contentPadding: const EdgeInsets.symmetric(
                                       vertical: 16, horizontal: 16),
                                   hintText: "Placeholder text...",

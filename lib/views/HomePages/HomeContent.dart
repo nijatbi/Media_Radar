@@ -31,7 +31,6 @@ class _HomeContentState extends State<HomeContent> with SingleTickerProviderStat
           children: [
             CustomScrollView(
               slivers: [
-                // Collapsing SliverAppBar
                 SliverAppBar(
                   floating: true,
                   pinned: true,
@@ -86,7 +85,6 @@ class _HomeContentState extends State<HomeContent> with SingleTickerProviderStat
                     builder: (BuildContext context, BoxConstraints constraints) {
                       double top = constraints.biggest.height;
 
-                      // Scroll etdikdə title görünəcək
                       bool showTitle = top <= kToolbarHeight + 20;
 
                       return FlexibleSpaceBar(
@@ -108,7 +106,6 @@ class _HomeContentState extends State<HomeContent> with SingleTickerProviderStat
                   ),
                 ),
 
-                // Ana səhifə başlığı
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -135,12 +132,10 @@ class _HomeContentState extends State<HomeContent> with SingleTickerProviderStat
                   ),
                 ),
 
-                // Grid/List toggle
                 isGrid ? _gridView() : _listView(),
               ],
             ),
 
-            // Menu overlay
             if (isShowMenu)
               Positioned.fill(
                 child: GestureDetector(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:media_radar/constants/Constant.dart';
+import 'package:provider/provider.dart';
+import '../../providers/AuthProvider.dart';
 import '../HomePages/AddCreateCategoryAppBar.dart';
 
 class CategoryAndKeyList extends StatefulWidget {
@@ -10,7 +12,6 @@ class CategoryAndKeyList extends StatefulWidget {
 }
 
 class _CategoryAndKeyListState extends State<CategoryAndKeyList> {
-  // Demo data (API-dən gələcək data ilə əvəz olunacaq)
   final List<Map<String, dynamic>> categoryGroups = [
     {
       'title': 'Azərbaycan',
@@ -34,6 +35,8 @@ class _CategoryAndKeyListState extends State<CategoryAndKeyList> {
 
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<AuthProvider>().user;
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
@@ -86,9 +89,9 @@ class _CategoryAndKeyListState extends State<CategoryAndKeyList> {
               SizedBox(height: 20,),
               Expanded(
                 child: ListView.builder(
-                  itemCount: categoryGroups.length,
+                  itemCount: user!.streams!.length,
                   itemBuilder: (context, index) {
-                    final group = categoryGroups[index];
+                    final group = user!.streams![index];
                     final isLast = index == categoryGroups.length - 1;
 
                     return Column(
@@ -97,7 +100,7 @@ class _CategoryAndKeyListState extends State<CategoryAndKeyList> {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 0),
                           child: Text(
-                            group['title'],
+                            group.name,
                             style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -109,10 +112,10 @@ class _CategoryAndKeyListState extends State<CategoryAndKeyList> {
                         Wrap(
                           spacing: 10,
                           runSpacing: 10,
-                          children: List.generate(
-                            group['tags'].length,
-                                (tagIndex) => _buildTag(group['tags'][tagIndex]),
-                          ),
+                          children: group.keywords
+                              .map((keyword) =>
+                              _buildTag(keyword.value))
+                              .toList(),
                         ),
 
                         if (!isLast) ...[

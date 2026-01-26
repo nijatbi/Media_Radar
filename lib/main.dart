@@ -1,26 +1,50 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:media_radar/providers/AuthProvider.dart';
 import 'package:media_radar/routes.dart';
-import 'package:media_radar/views/Favourites/SelectedList.dart';
-import 'package:media_radar/views/HomePages/HomePage.dart';
+import 'package:media_radar/views/HomePages/RootPage.dart';
 import 'package:media_radar/views/RegisterAndLogin/Login.dart';
-import 'package:media_radar/views/accounts/Account.dart';
+import 'package:media_radar/views/HomePages/HomePage.dart';
+import 'package:provider/provider.dart';
+
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+  }
+}
+
 
 void main() {
-  runApp(const MyApp());
+  if (!kReleaseMode) {
+    HttpOverrides.global = MyHttpOverrides();
+  }
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => AuthProvider(),
+        ),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-
   @override
   Widget build(BuildContext context) {
+
     return MaterialApp(
       title: 'Media Radar',
       debugShowCheckedModeBanner: false,
-      home: HomePage(),
+      home: const RootPage(),
       onGenerateRoute: RouteGenerator.routeGenerator,
-
     );
   }
 }

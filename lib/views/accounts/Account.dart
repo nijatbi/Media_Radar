@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:media_radar/constants/Constant.dart';
 import 'package:media_radar/views/accounts/CategoryAndKeys.dart';
 import 'package:media_radar/views/accounts/Profile.dart';
+import 'package:provider/provider.dart';
+
+import '../../providers/AuthProvider.dart';
+import '../RegisterAndLogin/Login.dart';
 
 class Account extends StatefulWidget {
   const Account({super.key});
@@ -18,6 +22,7 @@ class _AccountState extends State<Account> {
     {'icon': Icons.search, 'name': 'Ətraflı axtarış'},
     {'icon': Icons.language, 'name': 'Dil seçimi'},
   ];
+
 
   void _showLanguageBottomSheet() {
     showModalBottomSheet(
@@ -94,6 +99,7 @@ class _AccountState extends State<Account> {
 
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<AuthProvider?>()?.user;
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
@@ -135,7 +141,7 @@ class _AccountState extends State<Account> {
                       decoration: const BoxDecoration(
                         shape: BoxShape.circle,
                         image: DecorationImage(
-                          image: AssetImage('assets/images/images.jpg'),
+                          image: AssetImage('assets/images/profile-42914_640.webp'),
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -147,8 +153,8 @@ class _AccountState extends State<Account> {
                         color: Constant.inputHintTextColor,
                       ),
                     ),
-                    subtitle: const Text(
-                      'Leyla',
+                    subtitle:  Text(
+                      '${user?.name ?? '' }',
                       style:
                       TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
                     ),
@@ -221,30 +227,68 @@ class _AccountState extends State<Account> {
 
               const SizedBox(height: 20),
 
-              Card(
-                elevation: 0,
-                margin: EdgeInsets.zero,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+              GestureDetector(
+                onTap: () async {
+                  final shouldLogout = await showDialog<bool>(
+                    context: context,
+                    barrierDismissible: true,
+                    builder: (context) {
+                      return AlertDialog(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16)),
+                        title: const Text(
+                          "Çıxış",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        content: const Text("Hesabdan çıxmaq istədiyinizə əminsiniz?"),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: const Text(
+                              "İmtina et",
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF3F3BA3)),
+                            onPressed: () => Navigator.pop(context, true),
+                            child: const Text("Təsdiqlə",style: TextStyle(color: Colors.white,fontSize: 14,
+                            fontWeight: FontWeight.w500
+                            ),),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+
+                  // Əgər istifadəçi təsdiqləyibsə logout et
+                  if (shouldLogout ?? false) {
+                    await context.read<AuthProvider>().logout();
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LoginPage()),
+                          (route) => false,
+                    );
+                  }
+                },
+                child: Card(
+                  elevation: 0,
+                  margin: EdgeInsets.zero,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  color: Colors.white,
+                  child: ListTile(
+                    leading: const Icon(Icons.logout, color: Colors.black),
+                    title: const Text('Çıxış', style: TextStyle(color: Colors.black)),
+                    trailing: const Icon(Icons.keyboard_arrow_right_rounded,
+                        color: Color(0xFFADADAD)),
+                  ),
                 ),
-                color: Colors.white,
-                child: ListTile(
-                  leading: const Icon(
-                    Icons.logout,
-                    color: Colors.black,
-                  ),
-                  title: const Text(
-                    'Çıxış',
-                    style: TextStyle(color: Colors.black),
-                  ),
-                  trailing: const Icon(
-                    Icons.keyboard_arrow_right_rounded,
-                    color: Color(0xFFADADAD),
-                  ),
-                  onTap: () {
-                  },
-                ),
-              ),
+              )
+
+
             ],
           ),
         ),
