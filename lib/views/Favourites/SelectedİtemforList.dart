@@ -1,39 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../../models/New.dart';
 
 class SelectedItemForList extends StatelessWidget {
-  const SelectedItemForList({super.key});
-
+  final News? news;
+  const SelectedItemForList({this.news,super.key});
+  String formatDate(String dateStr) {
+    try {
+      DateTime dateTime = DateTime.parse(dateStr);
+      String formatted = DateFormat('dd MMMM yyyy – HH:mm').format(dateTime);
+      return formatted;
+    } catch (e) {
+      return dateStr;
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start, // tam yuxarı hizalama
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Şəkil (Solda)
+
           Container(
             width: 100,
             height: 100,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              image: const DecorationImage(
-                image: AssetImage('assets/images/Rectangle 299.png'),
+              image: DecorationImage(
+                image: (news?.imageUrl != null && news!.imageUrl!.isNotEmpty && news!.imageUrl != "Null")
+                    ? NetworkImage(news!.imageUrl!)
+                    : const AssetImage('assets/images/Rectangle 299.png') as ImageProvider,
                 fit: BoxFit.cover,
               ),
             ),
           ),
-          const SizedBox(width: 10),
+           SizedBox(width: 10),
 
-          // Sağ hissə (Text və Icon-lar)
+
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Row: Avatar + oxu.az + Bookmark
+
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Avatar
                     Container(
                       width: 20,
                       height: 20,
@@ -47,31 +59,33 @@ class SelectedItemForList extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
 
-                    // oxu.az text
-                    const Text(
-                      'oxu.az',
+
+                     Text(
+                      '${news!.domain}',
                       style: TextStyle(fontSize: 10),
                     ),
 
                     const Spacer(),
 
-                    // Bookmark icon
-                    GestureDetector(
+                    (news?.isSaved ?? false)
+                        ? GestureDetector(
                       onTap: () {},
-                      child: const Icon(
+                      child: Icon(
                         Icons.bookmark,
                         size: 20,
                         color: Color(0xFFF66F6A),
                       ),
-                    ),
+                    )
+                        : const SizedBox.shrink()
+
                   ],
                 ),
 
-                const SizedBox(height: 6), // Row ilə başlıq arasındakı boşluq
+                const SizedBox(height: 6),
 
-                // Başlıq
-                const Text(
-                  'Süni intellekt 2030-cu ilə qədər yalnız bir neçə iş yerini əvəzləyə bilməyəcək',
+
+                 Text(
+                  '${news!.title}',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -82,9 +96,9 @@ class SelectedItemForList extends StatelessWidget {
 
                 const SizedBox(height: 4),
 
-                // Tarix
+
                 Text(
-                  '10.08.2025 • 15:47',
+                  '${formatDate(news!.publishedAt.toString())}',
                   style: TextStyle(
                     fontSize: 10,
                     color: Colors.grey[600],

@@ -262,7 +262,6 @@ class _AccountState extends State<Account> {
                     },
                   );
 
-                  // Əgər istifadəçi təsdiqləyibsə logout et
                   if (shouldLogout ?? false) {
                     await context.read<AuthProvider>().logout();
                     Navigator.pushAndRemoveUntil(

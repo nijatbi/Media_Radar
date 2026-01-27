@@ -12,35 +12,22 @@ class CategoryAndKeyList extends StatefulWidget {
 }
 
 class _CategoryAndKeyListState extends State<CategoryAndKeyList> {
-  final List<Map<String, dynamic>> categoryGroups = [
-    {
-      'title': 'Azərbaycan',
-      'tags': ["Azərbaycan", "Siyasət", "İlham Əliyev"]
-    },
-    {
-      'title': 'Dünya',
-      'tags': ["ABŞ", "Avropa", "Asiya"]
-    },
-    {
-      'title': 'Dünya',
-      'tags': ["ABŞ", "Avropa", "Asiya"]
-    },
-    {
-      'title': 'Dünya',
-      'tags': ["ABŞ", "Avropa", "Asiya"]
-    },
+  @override
+  void initState() {
+    super.initState();
 
-
-  ];
+    // User məlumatını yükləyirik ekran açıldıqda
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      await authProvider.getCurrentUser();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<AuthProvider>().user;
-
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
-
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
@@ -77,8 +64,7 @@ class _CategoryAndKeyListState extends State<CategoryAndKeyList> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
-              Text(
+              const Text(
                 'Kateqoriyalar',
                 style: TextStyle(
                   fontSize: 34,
@@ -86,44 +72,60 @@ class _CategoryAndKeyListState extends State<CategoryAndKeyList> {
                   color: Color(0xFF3F3BA3),
                 ),
               ),
-              SizedBox(height: 20,),
+              const SizedBox(height: 20),
+
               Expanded(
-                child: ListView.builder(
-                  itemCount: user!.streams!.length,
-                  itemBuilder: (context, index) {
-                    final group = user!.streams![index];
-                    final isLast = index == categoryGroups.length - 1;
+                child: Consumer<AuthProvider>(
+                  builder: (context, authProvider, child) {
+                    final user = authProvider.user;
 
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 0),
-                          child: Text(
-                            group.name,
-                            style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black),
-                          ),
+                    if (user == null || user.streams == null || user.streams!.isEmpty) {
+                      return const Center(
+                        child: Text(
+                          'Kateqoriya mövcud deyil',
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.red),
                         ),
-                        const SizedBox(height: 5),
+                      );
+                    }
 
-                        Wrap(
-                          spacing: 10,
-                          runSpacing: 10,
-                          children: group.keywords
-                              .map((keyword) =>
-                              _buildTag(keyword.value))
-                              .toList(),
-                        ),
+                    return ListView.builder(
+                      itemCount: user.streams!.length,
+                      itemBuilder: (context, index) {
+                        final group = user.streams![index];
+                        final isLast = index == user.streams!.length - 1;
 
-                        if (!isLast) ...[
-                          const SizedBox(height: 10),
-                          Divider(color: Constant.inputBorderColor, thickness: 1),
-                          const SizedBox(height: 10),
-                        ],
-                      ],
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 0),
+                              child: Text(
+                                group.name,
+                                style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black),
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+                            Wrap(
+                              spacing: 10,
+                              runSpacing: 10,
+                              children: group.keywords
+                                  .map((keyword) => _buildTag(keyword.value))
+                                  .toList(),
+                            ),
+                            if (!isLast) ...[
+                              const SizedBox(height: 10),
+                              Divider(color: Constant.inputBorderColor, thickness: 1),
+                              const SizedBox(height: 10),
+                            ],
+                          ],
+                        );
+                      },
                     );
                   },
                 ),

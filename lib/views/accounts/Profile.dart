@@ -15,6 +15,21 @@ class _ProfileState extends State<Profile> {
   bool _obscureOld = true;
   bool _obscureNew = true;
 
+ @override
+  void initState() {
+
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final authProvider = Provider.of<AuthProvider>(
+        context,
+        listen: false,
+      );
+      await authProvider.getCurrentUser();
+
+    });
+  }
+
   void _openPasswordModal(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -177,7 +192,14 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     final user = context.watch<AuthProvider?>()?.user;
-
+    final authProvider = context.watch<AuthProvider>();
+    if (authProvider.isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(

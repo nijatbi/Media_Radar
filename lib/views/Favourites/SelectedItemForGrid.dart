@@ -1,12 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:media_radar/models/New.dart';
+import 'package:intl/intl.dart';
+
 class SelectedItemForGrid extends StatefulWidget {
-  const SelectedItemForGrid({super.key});
+  final News? news;
+  const SelectedItemForGrid({ this.news ,super.key});
 
   @override
   State<SelectedItemForGrid> createState() => _SelectedItemForGridState();
 }
 
 class _SelectedItemForGridState extends State<SelectedItemForGrid> {
+  String formatDate(String dateStr) {
+    try {
+      DateTime dateTime = DateTime.parse(dateStr);
+      String formatted = DateFormat('dd MMMM yyyy – HH:mm').format(dateTime);
+      return formatted;
+    } catch (e) {
+      return dateStr;
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -18,9 +31,9 @@ class _SelectedItemForGridState extends State<SelectedItemForGrid> {
               height: 120,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
-                image: const DecorationImage(
+                image:  DecorationImage(
                   image:
-                  AssetImage('assets/images/Rectangle 299.png'),
+                  NetworkImage("${widget.news!.imageUrl}"),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -50,8 +63,8 @@ class _SelectedItemForGridState extends State<SelectedItemForGrid> {
                       ),
                     ),
                     const SizedBox(width: 5),
-                    const Text(
-                      'oxu.az',
+                     Text(
+                      '${widget.news!.domain}',
                       style: TextStyle(fontSize: 10),
                     ),
                   ],
@@ -66,7 +79,7 @@ class _SelectedItemForGridState extends State<SelectedItemForGrid> {
           children: [
             Expanded(
               child: Text(
-                'Süni intellekt 2030-cu ilə qədər yalnız bir neçə iş yerini əvəzləyə bilməyəcək',
+                '${widget.news!.title}',
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
@@ -90,7 +103,7 @@ class _SelectedItemForGridState extends State<SelectedItemForGrid> {
         ),
 
         Text(
-          '10.08.2025 • 15:47',
+          '${formatDate(widget.news!.publishedAt.toString())}',
           style: TextStyle(
               fontWeight: FontWeight.w500,
               fontSize: 10, color: Colors.grey[600]),

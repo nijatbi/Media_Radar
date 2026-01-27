@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:media_radar/providers/AuthProvider.dart';
+import 'package:media_radar/providers/NewsProvider.dart';
 import 'package:media_radar/routes.dart';
 import 'package:media_radar/views/HomePages/RootPage.dart';
 import 'package:media_radar/views/RegisterAndLogin/Login.dart';
@@ -26,8 +27,15 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => AuthProvider(),
+          create: (_) {
+            final auth = AuthProvider();
+            auth.getCurrentUser();
+            return auth;
+          },
         ),
+        ChangeNotifierProvider(create: (_) => NewsProvider()),
+
+
       ],
       child: const MyApp(),
     ),

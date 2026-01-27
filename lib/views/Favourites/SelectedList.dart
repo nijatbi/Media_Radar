@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:media_radar/constants/Constant.dart';
 import 'package:media_radar/views/Favourites/Selected%C4%B0temforList.dart';
 
+import '../../models/New.dart';
+import '../../providers/NewsProvider.dart';
 import '../HomePages/AddCreateCategoryAppBar.dart';
 import '../HomePages/SelectedAvtiveCategoryList.dart';
 import '../HomePages/ShowDate.dart';
@@ -102,7 +104,10 @@ class _SelectedListState extends State<SelectedList> {
                   ),
                 ),
 
-                isGrid ? _gridView() : _listView(),
+    //       else if (isGrid)
+    //     _gridView(newsList, newsProvider)
+    // else
+    // _listView(newsList, newsProvider),
               ],
 
             ),
@@ -137,35 +142,36 @@ class _SelectedListState extends State<SelectedList> {
     );
   }
 
-  Widget _gridView() {
+  SliverPadding _gridView(List<News> newsList, NewsProvider provider) {
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       sliver: SliverGrid(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          mainAxisSpacing: 0,
           crossAxisSpacing: 10,
           childAspectRatio: 0.70,
         ),
         delegate: SliverChildBuilderDelegate(
               (context, index) {
-            return SelectedItemForGrid();
+            final news = newsList[index];
+            return SelectedItemForGrid(news: news);
           },
-          childCount: 10,
+          childCount: newsList.length,
         ),
       ),
     );
   }
 
-  Widget _listView() {
+  SliverPadding _listView(List<News> newsList, NewsProvider provider) {
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
               (context, index) {
-            return SelectedItemForList();
+            final news = newsList[index];
+            return SelectedItemForList(news: news);
           },
-          childCount: 10,
+          childCount: newsList.length,
         ),
       ),
     );

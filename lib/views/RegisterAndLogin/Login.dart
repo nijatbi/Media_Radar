@@ -5,6 +5,9 @@ import 'package:media_radar/constants/Constant.dart';
 import 'package:media_radar/services/AuthService.dart';
 import 'package:media_radar/services/SecureStorageService.dart';
 import 'package:media_radar/views/HomePages/HomePage.dart';
+import 'package:provider/provider.dart';
+
+import '../../providers/AuthProvider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -106,7 +109,7 @@ class _LoginPageState extends State<LoginPage> {
                           vertical: 16.0,
                           horizontal: 16.0,
                         ),
-                        hintText: "Şifrə", // hint text
+                        hintText: "Şifrə",
                         hintStyle: TextStyle(color: Constant.inputHintTextColor),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -206,7 +209,8 @@ class _LoginPageState extends State<LoginPage> {
         final Map<String, dynamic> data = jsonDecode(response);
         if (response.contains('access_token')) {
           await SecureStorageService.saveToken(data["access_token"]);
-          await SecureStorageService.getToken();
+          final authProvider = Provider.of<AuthProvider>(context, listen: false);
+          await authProvider.getCurrentUser();
           Navigator.push(context, MaterialPageRoute(builder: (_)=>HomePage()));
 
         } else {

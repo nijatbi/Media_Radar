@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 class Keyword{
-  final int  id;
+  final int?  id;
   final String value;
   Keyword({
-    required this.id,
+     this.id,
     required this.value
 });
 
   factory Keyword.fromJson(Map<String,dynamic>json){
     return Keyword(
-      id:json["id"] ?? 0,
+      id:json["id"] ,
       value: json["value"] ?? ''
     );
   }
