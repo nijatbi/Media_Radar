@@ -9,6 +9,40 @@ import '../models/User.dart';
 import 'SecureStorageService.dart';
 
 class NewsService{
+
+  static Future<List<News>> getUserByTelegram({
+    String? startDate,
+    String? endDate,
+    int page = 1,
+}) async{
+    final token=await SecureStorageService.getToken();
+    if(token==null) {
+      return [];
+    }
+    else{
+      final response=await
+      http
+          .get(Uri.parse("${AuthService.baseUrl}/tg/post_and_replies_by_keywords?start_date=${startDate}&end_date=${endDate}&page=${page}&show_chosen=${false}"),
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': "Bearer $token",
+        },
+      );
+      if(response.statusCode==200){
+        final List<dynamic> jsonData = jsonDecode(response.body);
+
+        List<News> newsList = jsonData.map((e) => News.fromTelegramJson(e)).toList();
+
+        if (newsList.isNotEmpty) {
+          print("post ŞƏKLİ URL: ${newsList.first.imageUrl}");
+        }
+
+        return newsList;
+      }
+      return [];
+    }
+  }
+
   static Future<List<News>> getUserByStream({
     String? startDate,
     String? endDate,
@@ -28,11 +62,9 @@ class NewsService{
       },
       );
       if(response.statusCode==200){
-        print(response.body);
         final List<dynamic> jsonData = jsonDecode(response.body);
         return jsonData.map((e) => News.fromJson(e)).toList();
       }
-      print(response.body);
       return [];
     }
   }

@@ -11,6 +11,7 @@ import '../Favourites/SelectedİtemforList.dart';
 import 'SelectedAvtiveCategoryList.dart';
 import 'ShowSelectedSheet.dart';
 import 'ToolBarAppBar.dart';
+import 'package:intl/intl.dart';
 
 class HomeContent extends StatefulWidget {
   const HomeContent({super.key});
@@ -19,7 +20,7 @@ class HomeContent extends StatefulWidget {
   State<HomeContent> createState() => _HomeContentState();
 }
 
-class _HomeContentState extends State<HomeContent> {
+class _HomeContentState extends State<HomeContent> with AutomaticKeepAliveClientMixin{
   bool isGrid = false;
   bool isShowMenu = false;
   int page = 1;
@@ -29,36 +30,34 @@ class _HomeContentState extends State<HomeContent> {
   @override
   void initState() {
     super.initState();
+    _scrollController = ScrollController()..addListener(_scrollListener);
 
-    _scrollController = ScrollController();
-    _scrollController.addListener(_scrollListener);
+    Future.microtask(() {
+      final provider = Provider.of<NewsProvider>(context, listen: false);
+      if (provider.newsList == null || provider.newsList!.isEmpty) {
+        if (provider.statucCode == 1) {
+          provider.getAllnewsByStreamKeyword(page: 1, append: false);
+        } else {
+          provider.getAllnewsByTelegram(page: 1, append: false);
+        }
+      }
+    });
 
     _loadTodayNews();
   }
-
   void _loadTodayNews() {
     DateTime today = DateTime.now();
-    const List<String> months = [
+     List<String> months = [
       'yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun',
       'iyul', 'avqust', 'sentyabr', 'oktyabr', 'noyabr', 'dekabr'
     ];
     setState(() {
       dateText =
-      "${today.day} ${months[today.month - 1]} ${today.year}-ci il";
+      "${today.day} ${months[today.month - 1]} ${today.year}-cı il";
     });
     setState(() {
       formattedDate =
       "${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
-    });
-
-    Future.microtask(() {
-      Provider.of<NewsProvider>(context, listen: false)
-          .getAllnewsByStreamKeyword(
-        startDate: formattedDate,
-        endDate: formattedDate,
-        page: page,
-        append: page > 1,
-      );
     });
   }
 
@@ -69,26 +68,54 @@ class _HomeContentState extends State<HomeContent> {
         _scrollController.position.maxScrollExtent - 300 &&
         !provider.isLoading) {
       page++;
-      _loadTodayNews();
+
+      if (provider.statucCode == 1) {
+        provider.getAllnewsByStreamKeyword(page: page, append: true);
+      } else {
+        provider.getAllnewsByTelegram(page: page, append: true);
+      }
     }
   }
+
 
   @override
   void dispose() {
     _scrollController.dispose();
     super.dispose();
   }
-
+  @override
+  bool get wantKeepAlive => true;
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
         body: Stack(
           children: [
-            Consumer<NewsProvider>(builder: (context, newsProvider, child) {
-              final newsList = newsProvider.newsList ?? [];
+            Consumer<NewsProvider>(builder: (context, provider, child) {
+              final newsList = provider.newsList ?? [];
+               List<String> months = [
+                'yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun',
+                'iyul', 'avqust', 'sentyabr', 'oktyabr', 'noyabr', 'dekabr'
+              ];
 
+              String formatAzDate(String? dateStr) {
+                DateTime date = dateStr != null ? DateTime.parse(dateStr) : DateTime.now();
+
+                String day = date.day.toString();
+                String monthName = months[date.month - 1];
+                String year = date.year.toString();
+
+                return "$day $monthName $year-cı il";
+              }
+
+              String finalText;
+              if (provider.tableStartDate != null && provider.tableEndDate != null) {
+                finalText = "${formatAzDate(provider.tableStartDate)} - ${formatAzDate(provider.tableEndDate)}";
+              } else {
+                finalText = formatAzDate(null); // Bugün
+              }
               return CustomScrollView(
                 controller: _scrollController,
                 slivers: [
@@ -106,13 +133,13 @@ class _HomeContentState extends State<HomeContent> {
                         });
                       },
                       child: Container(
-                        margin: const EdgeInsets.all(12),
+                        margin:  EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           border: Border.all(
                               width: 2, color: const Color(0xFF646464)),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.more_horiz, size: 20),
+                        child:  Icon(Icons.more_horiz, size: 20),
                       ),
                     ),
                     actions: [
@@ -132,7 +159,7 @@ class _HomeContentState extends State<HomeContent> {
                           addCategoryAppBar(context);
                         },
                         child: Container(
-                          margin: const EdgeInsets.only(right: 15, left: 5),
+                          margin:  EdgeInsets.only(right: 15, left: 5),
                           width: 40,
                           height: 40,
                           decoration: const BoxDecoration(
@@ -152,11 +179,11 @@ class _HomeContentState extends State<HomeContent> {
                           collapseMode: CollapseMode.pin,
                           title: AnimatedOpacity(
                             opacity: showTitle ? 1.0 : 0.0,
-                            duration: const Duration(milliseconds: 200),
+                            duration:  Duration(milliseconds: 200),
                             child:  Text(
-                              '${dateText}',
+                              '${finalText}',
                               style: TextStyle(
-                                  fontSize: 13,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                   color: Color(0xFF3F3BA3)),
                             ),
@@ -166,7 +193,7 @@ class _HomeContentState extends State<HomeContent> {
                     ),
                   ),
 
-                  const SliverToBoxAdapter(
+                   SliverToBoxAdapter(
                     child: Padding(
                       padding:
                       EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -182,7 +209,7 @@ class _HomeContentState extends State<HomeContent> {
                           ),
                           SizedBox(height: 10),
                           Text(
-                            '17 noyabr 2025-ci il',
+                        '${finalText}',
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w700,
@@ -193,8 +220,8 @@ class _HomeContentState extends State<HomeContent> {
                     ),
                   ),
 
-                  if (newsList.isEmpty && !newsProvider.isLoading)
-                    const SliverToBoxAdapter(
+                  if (newsList.isEmpty && !provider.isLoading)
+                     SliverToBoxAdapter(
                       child: Center(
                         child: Padding(
                           padding: EdgeInsets.all(20),
@@ -209,14 +236,14 @@ class _HomeContentState extends State<HomeContent> {
                       ),
                     )
                   else if (isGrid)
-                    _gridView(newsList, newsProvider)
+                    _gridView(newsList, provider)
                   else
-                    _listView(newsList, newsProvider),
+                    _listView(newsList, provider),
 
                   SliverToBoxAdapter(
                     child: Visibility(
-                      visible: newsProvider.isLoading,
-                      child: const Padding(
+                      visible: provider.isLoading,
+                      child:  Padding(
                         padding: EdgeInsets.all(20),
                         child: Center(child: CircularProgressIndicator()),
                       ),
@@ -247,7 +274,17 @@ class _HomeContentState extends State<HomeContent> {
                   if (selected == "Seçilmiş mənbə") showSelectedSheet(context);
                   else if (selected == "Aktiv kateqoriyalar")
                     selectedActiveCategory(context);
-                  else if (selected == "Tarix") showDate(context);
+                  else if (selected == "Tarix") {
+                    setState(() {
+                      isShowMenu = false;
+                    });
+
+                    showDate(context);
+
+                    setState(() {
+                      page = 1;
+                    });
+                  };
                 },
               ),
           ],
@@ -258,9 +295,9 @@ class _HomeContentState extends State<HomeContent> {
 
   SliverPadding _gridView(List<News> newsList, NewsProvider provider) {
     return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding:  EdgeInsets.symmetric(horizontal: 20),
       sliver: SliverGrid(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        gridDelegate:  SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           crossAxisSpacing: 10,
           childAspectRatio: 0.70,
@@ -278,7 +315,7 @@ class _HomeContentState extends State<HomeContent> {
 
   SliverPadding _listView(List<News> newsList, NewsProvider provider) {
     return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding:  EdgeInsets.symmetric(horizontal: 20),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
               (context, index) {

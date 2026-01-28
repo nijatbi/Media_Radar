@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoActivityIndicator;
 import 'package:flutter/material.dart';
 import 'package:media_radar/models/New.dart';
 import 'package:intl/intl.dart';
@@ -29,13 +30,26 @@ class _SelectedItemForGridState extends State<SelectedItemForGrid> {
           children: [
             Container(
               height: 120,
+              clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
-                image:  DecorationImage(
-                  image:
-                  NetworkImage("${widget.news!.imageUrl}"),
-                  fit: BoxFit.cover,
-                ),
+              ),
+              child: Image.network(
+                "${widget.news!.imageUrl}",
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: double.infinity,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    color: Colors.grey[300],
+                    width: double.infinity,
+                    child:  Icon(Icons.broken_image, color: Colors.grey, size: 30),
+                  );
+                },
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return const Center(child: CupertinoActivityIndicator());
+                },
               ),
             ),
             Positioned(
@@ -89,21 +103,24 @@ class _SelectedItemForGridState extends State<SelectedItemForGrid> {
               ),
             ),
 
-            IconButton(
+            (widget.news?.isSaved ?? false)
+                ? IconButton(
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
-              onPressed: () {},
+              onPressed: () {
+              },
               icon: const Icon(
                 Icons.bookmark,
                 color: Color(0xFFF66F6A),
                 size: 20,
               ),
-            ),
+            )
+                : const SizedBox.shrink(),
           ],
         ),
 
         Text(
-          '${formatDate(widget.news!.publishedAt.toString())}',
+          '${formatDate(widget.news!.scrapedAt.toString())}',
           style: TextStyle(
               fontWeight: FontWeight.w500,
               fontSize: 10, color: Colors.grey[600]),

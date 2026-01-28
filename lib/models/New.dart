@@ -13,9 +13,10 @@ class News {
   final bool? isSaved;
   final int? similarsCount;
   final List<News>? similarNews;
-
+  final String? channelImage;
   News({
     this.id,
+    this.channelImage,
     this.domain,
     this.url,
     this.title,
@@ -62,6 +63,45 @@ class News {
       similarNews: (json['similar_news'] as List?)
           ?.map((e) => News.fromJson(e))
           .toList(),
+    );
+  }
+  factory News.fromTelegramJson(Map<String, dynamic> json) {
+    final channelImages = json['channel_image_filenames'] as List?;
+    final postImages = json['post_image_filenames'] as List?;
+
+    String? rawChannelPath;
+    if (channelImages != null && channelImages.isNotEmpty) {
+      rawChannelPath = channelImages[0].toString();
+    }
+
+    String? rawPostPath;
+    if (postImages != null && postImages.isNotEmpty) {
+      rawPostPath = postImages[0].toString();
+    }
+
+    return News(
+      id: json['pm_pk'] as int? ?? json['post_id'] as int?,
+      domain: json['channel_name'] as String?,
+      url: json['link_for_post'] as String?,
+      title: json['channel_username'] as String?,
+      text: json['post_content'] as String?,
+
+      channelImage: rawChannelPath,
+      imageUrl: rawPostPath,
+
+      publishedAt: json['post_publish_date'] != null
+          ? DateTime.tryParse(json['post_publish_date'])
+          : null,
+
+      isSaved: json['is_favourite'] as bool? ?? false,
+
+      scrapedAt: json['post_scrape_date'] != null
+          ? DateTime.tryParse(json['post_scrape_date'])
+          : null,
+
+      category: "Telegram",
+      similarsCount: 0,
+      similarNews: [],
     );
   }
 

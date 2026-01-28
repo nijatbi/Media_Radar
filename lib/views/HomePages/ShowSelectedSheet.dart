@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:media_radar/providers/NewsProvider.dart';
+import 'package:provider/provider.dart';
 
 import '../../constants/Constant.dart';
 void showSelectedSheet(BuildContext context) {
+
   showModalBottomSheet(
     context: context,
     backgroundColor: Colors.transparent,
@@ -42,17 +45,24 @@ void showSelectedSheet(BuildContext context) {
 
                         fontWeight:FontWeight.w500 ,color: Constant.languageAlertColor),)),
                     onTap: () {
+                      final newsProvider = Provider.of<NewsProvider>(context, listen: false);
+                      newsProvider.updateStatusCode(1);
                       Navigator.pop(context);
                     },
                   ),
                   const Divider(height: 1, thickness: 1),
                   ListTile(
+
                     title:  Center(child: Text('Telegram',style: TextStyle(
                         fontSize: 20,
                         fontWeight:FontWeight.w500 ,color: Constant.languageAlertColor
                     ),)),
-                    onTap: () {
-                      Navigator.pop(context);
+                    onTap: () async{
+                      if (!context.mounted) return;
+                      Navigator.of(context).pop();
+                      final newsProvider = Provider.of<NewsProvider>(context, listen: false);
+                      newsProvider.updateStatusCode(2);
+
                     },
                   ),
                   const Divider(height: 1, thickness: 1),
