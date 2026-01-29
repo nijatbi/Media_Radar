@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:media_radar/providers/FavouriteProvider.dart';
 import 'package:media_radar/providers/NewsProvider.dart';
 import 'package:provider/provider.dart';
 
@@ -47,6 +48,8 @@ void showSelectedSheet(BuildContext context) {
                     onTap: () {
                       final newsProvider = Provider.of<NewsProvider>(context, listen: false);
                       newsProvider.updateStatusCode(1);
+                      final favouriteProvider=Provider.of<FavouriteProvider>(context,listen: false);
+                      favouriteProvider.getFavouriteNews(newsProvider);
                       Navigator.pop(context);
                     },
                   ),
@@ -62,7 +65,8 @@ void showSelectedSheet(BuildContext context) {
                       Navigator.of(context).pop();
                       final newsProvider = Provider.of<NewsProvider>(context, listen: false);
                       newsProvider.updateStatusCode(2);
-
+                      final favouriteProvider=Provider.of<FavouriteProvider>(context,listen: false);
+                      favouriteProvider.getFavouriteNews(newsProvider);
                     },
                   ),
                   const Divider(height: 1, thickness: 1),

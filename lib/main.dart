@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:media_radar/providers/AuthProvider.dart';
+import 'package:media_radar/providers/FavouriteProvider.dart';
 import 'package:media_radar/providers/NewsProvider.dart';
 import 'package:media_radar/routes.dart';
 import 'package:media_radar/views/HomePages/RootPage.dart';
@@ -34,6 +35,7 @@ void main() {
           },
         ),
         ChangeNotifierProvider(create: (_) => NewsProvider()),
+        ChangeNotifierProvider(create: (_) => FavouriteProvider()),
 
 
       ],

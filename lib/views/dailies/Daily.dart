@@ -1,6 +1,8 @@
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
+import 'package:media_radar/providers/NewsProvider.dart';
 import 'package:media_radar/views/dailies/DailyNewItem.dart';
+import 'package:provider/provider.dart';
 import '../../constants/Constant.dart';
 
 class Daily extends StatefulWidget {
@@ -12,44 +14,11 @@ class Daily extends StatefulWidget {
 
 class _DailyState extends State<Daily> {
   int _currentIndex = 0;
-  List<Map<String, String>> data=[
-    {
-      'id':'1',
-      'image':"assets/images/photo.webp",
-      'title':"media.az",
-      'desc':"xeberler barede melumat xeberler barede melumat xeberler barede melumat xeberler barede melumat xeberler barede melumat "
-    ,'date' :'10.08.2025 • 15:47'
-    },
-    {
-      'image':"assets/images/Rectangle 299.png",
-      'id':'12',
-
-      'title':"media.az",
-      'desc':"xeberler barede melumat xeberler barede melumat xeberler barede melumat xeberler barede melumat xeberler barede melumat "
-      ,'date' :'10.08.2025 • 15:47'
-    },
-    {
-      'image':"assets/images/download.png",
-      'id':'13',
-
-      'title':"media.az",
-      'desc':"xeberler barede melumat xeberler barede melumat xeberler barede melumat xeberler barede melumat xeberler barede melumat "
-      ,'date' :'10.08.2025 • 15:47'
-    },
-    {
-      'image':"assets/images/images.jpg",
-      'id':'14',
-
-      'title':"media.az",
-      'desc':"xeberler barede melumat xeberler barede melumat xeberler barede melumat xeberler barede melumat xeberler barede melumat "
-      ,'date' :'10.08.2025 • 15:47'
-    },
-  ];
   @override
   Widget build(BuildContext context) {
     final double screenHeight = MediaQuery.of(context).size.height;
     final double screenWidth = MediaQuery.of(context).size.width;
-
+    final newsProvider=Provider.of<NewsProvider>(context);
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
@@ -81,7 +50,6 @@ class _DailyState extends State<Daily> {
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// BAŞLIQ
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               child: Text(
@@ -94,49 +62,95 @@ class _DailyState extends State<Daily> {
               ),
             ),
 
-            /// CAROUSEL
-            Expanded(
-              child: Swiper(
-                itemCount: data.length,
-                layout: SwiperLayout.STACK,
-                itemWidth: screenWidth * 0.88,
-                itemHeight: screenHeight * 0.6,
-                onIndexChanged: (index) {
-                  setState(() => _currentIndex = index);
-                },
-
-                customLayoutOption: CustomLayoutOption(
-                  startIndex: -1,
-                  stateCount: 3,
-                )
-                  ..addTranslate([
-                    const Offset(0, 0),
-                    const Offset(0, 28),
-                    const Offset(0, 56),
-                  ])
-                  ..addScale(
-                    [1.0, 0.94, 0.88],
-                    Alignment.center,
-                  ),
-
-                itemBuilder: (context, index) {
-                  return DailyNewItem(image: data[index]["image"]!,title: data[index]["title"]!,
-                  date: data[index]["date"]!,
-                    desc: data[index]["desc"]!,
-                    id: data[index]["id"]!,
+            Consumer<NewsProvider>(
+              builder: (context, provider, child) {
+                if (provider.isLoading) {
+                  return const Expanded(
+                    child: Center(child: CircularProgressIndicator()),
                   );
-                },
+                }
+                final filteredNews = (provider.newsList ?? [])
+                    .where((news) {
+                  if (news.imageUrl == null) return false;
 
-                pagination: SwiperPagination(
-                  alignment: Alignment.bottomCenter,
-                  builder: DotSwiperPaginationBuilder(
-                    color: Colors.grey,
-                    activeColor: Colors.green,
-                    size: 8,
-                    activeSize: 10,
+                  if (news.imageUrl!.trim().isEmpty) return false;
+
+                  if (news.imageUrl!.toLowerCase() == "null") return false;
+
+                  if (news.imageUrl!.contains("file:///null")) return false;
+
+                  return true;
+                })
+                    .take(7)
+                    .toList();
+
+                if (filteredNews.isEmpty) {
+                  return const Expanded(
+                    child: Center(child: Text('Xəbərlər mövcud deyil...')),
+                  );
+                }
+
+                return Expanded(
+                  child: Swiper(
+                    itemCount: filteredNews.length,
+                    layout: SwiperLayout.STACK,
+                    itemWidth: screenWidth * 0.88,
+                    itemHeight: screenHeight * 0.6,
+                    onIndexChanged: (index) {
+                      setState(() => _currentIndex = index);
+                    },
+                    customLayoutOption: CustomLayoutOption(
+                      startIndex: -1,
+                      stateCount: 3,
+                    )
+                      ..addTranslate([
+                        const Offset(0, 0),
+                        const Offset(0, 28),
+                        const Offset(0, 56),
+                      ])
+                      ..addScale([1.0, 0.94, 0.88], Alignment.center),
+                    itemBuilder: (context, index) {
+                      final item = filteredNews[index];
+
+                      String rawTitle = item.title ?? "";
+                      String rawText = item.text ?? "";
+
+                      String displayTitle = "";
+                      String displayDesc = "";
+
+                      if (provider.statucCode == 1) {
+                        displayTitle = rawTitle;
+                        displayDesc = rawText;
+                      } else {
+                        displayTitle = rawText.length > 35
+                            ? "${rawText.substring(0, 35)}..."
+                            : rawText;
+                        displayDesc = rawText;
+                      }
+
+                      return DailyNewItem(
+                        imageUrl: item.imageUrl!,
+                        coverImage: item.channelImage ?? "",
+                        title: displayTitle,
+                        isSaved: item.isSaved!,
+                        categoryName: item.category ?? "Gündəm",
+                        date: item.scrapedAt?.toString().split('.').first ?? "",
+                        desc: displayDesc,
+                        id: item.id?.toString() ?? index.toString(),
+                      );
+                    },
+                    pagination: const SwiperPagination(
+                      alignment: Alignment.bottomCenter,
+                      builder: DotSwiperPaginationBuilder(
+                        color: Colors.grey,
+                        activeColor: Colors.green,
+                        size: 8,
+                        activeSize: 10,
+                      ),
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
           ],
         ),

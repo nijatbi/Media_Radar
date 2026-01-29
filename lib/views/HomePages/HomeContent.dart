@@ -6,8 +6,12 @@ import 'package:media_radar/views/HomePages/AppBarAlert.dart';
 import 'package:media_radar/views/HomePages/ShowDate.dart';
 import 'package:provider/provider.dart';
 import '../../constants/Constant.dart';
+import '../../providers/FavouriteProvider.dart';
+import '../../services/NewsService.dart';
+import '../../services/SecureStorageService.dart';
 import '../Favourites/SelectedItemForGrid.dart';
 import '../Favourites/SelectedİtemforList.dart';
+import '../dailies/NewsItem.dart';
 import 'SelectedAvtiveCategoryList.dart';
 import 'ShowSelectedSheet.dart';
 import 'ToolBarAppBar.dart';
@@ -34,6 +38,7 @@ class _HomeContentState extends State<HomeContent> with AutomaticKeepAliveClient
 
     Future.microtask(() {
       final provider = Provider.of<NewsProvider>(context, listen: false);
+
       if (provider.newsList == null || provider.newsList!.isEmpty) {
         if (provider.statucCode == 1) {
           provider.getAllnewsByStreamKeyword(page: 1, append: false);
@@ -41,6 +46,8 @@ class _HomeContentState extends State<HomeContent> with AutomaticKeepAliveClient
           provider.getAllnewsByTelegram(page: 1, append: false);
         }
       }
+      final favouriteProvider=Provider.of<FavouriteProvider>(context,listen: false);
+      favouriteProvider.getFavouriteNews(provider);
     });
 
     _loadTodayNews();

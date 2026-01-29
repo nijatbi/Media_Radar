@@ -32,11 +32,6 @@ class NewsService{
         final List<dynamic> jsonData = jsonDecode(response.body);
 
         List<News> newsList = jsonData.map((e) => News.fromTelegramJson(e)).toList();
-
-        if (newsList.isNotEmpty) {
-          print("post ŞƏKLİ URL: ${newsList.first.imageUrl}");
-        }
-
         return newsList;
       }
       return [];
@@ -67,5 +62,10 @@ class NewsService{
       }
       return [];
     }
+  }
+
+  static buildImageUrl(String? path) {
+    if (path == null || path.isEmpty) return "";
+    return "${AuthService.baseUrl}/tg/get_image_by_filename?filename=${Uri.encodeComponent(path)}";
   }
 }

@@ -76,7 +76,6 @@ class NewsProvider extends ChangeNotifier {
     }
   }
 
-  //Telegramdan datanin cekilmesi
 
 
   Future<void> getAllnewsByTelegram({
