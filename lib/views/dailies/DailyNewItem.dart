@@ -13,7 +13,7 @@ class DailyNewItem extends StatefulWidget {
   final String? descFull;
   final String date;
   final bool? isSaved;
-  final String id;
+  final int id;
   final String? categoryName;
 
   const DailyNewItem({
@@ -140,7 +140,7 @@ class _DailyNewItemState extends State<DailyNewItem> {
                 Image.network(
                   finalImageUrl!,
                   headers: headers,
-                  fit: BoxFit.cover,
+                  fit: BoxFit.contain,
                   errorBuilder: (context, error, stackTrace) => _buildErrorPlaceholder(),
 
                 )
@@ -152,7 +152,7 @@ class _DailyNewItemState extends State<DailyNewItem> {
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [Colors.transparent, Colors.black87],
+                    colors: [Colors.transparent, Colors.black38],
                   ),
                 ),
               ),

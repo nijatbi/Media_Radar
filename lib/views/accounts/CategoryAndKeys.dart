@@ -16,7 +16,7 @@ class _CategoryAndKeyListState extends State<CategoryAndKeyList> {
   void initState() {
     super.initState();
 
-    // User məlumatını yükləyirik ekran açıldıqda
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       await authProvider.getCurrentUser();

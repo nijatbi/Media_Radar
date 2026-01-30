@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart' show CupertinoActivityIndicator;
 import 'package:flutter/material.dart';
 import 'package:media_radar/models/New.dart';
+import 'package:media_radar/providers/FavouriteProvider.dart';
 import 'package:media_radar/providers/NewsProvider.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -26,6 +27,7 @@ class _SelectedItemForGridState extends State<SelectedItemForGrid> {
   void initState() {
     super.initState();
     _loadData();
+
   }
 
   Future<void> _loadData() async {
@@ -43,12 +45,18 @@ class _SelectedItemForGridState extends State<SelectedItemForGrid> {
   }
 
   Widget _buildMainImage(bool isTelegram) {
+    String? finalUrl = isTelegram ? imageUrlNews : widget.news?.imageUrl;
+
+    if (finalUrl == null || finalUrl.trim().isEmpty) {
+      return const Center(child: Icon(Icons.broken_image, color: Colors.grey));
+    }
+
     if (isTelegram) {
-      if (_token == null || imageUrlNews == null) {
+      if (_token == null) {
         return const Center(child: CupertinoActivityIndicator());
       }
       return Image.network(
-        imageUrlNews!,
+        finalUrl,
         headers: {'Authorization': "Bearer $_token"},
         fit: BoxFit.cover,
         width: double.infinity,
@@ -57,7 +65,7 @@ class _SelectedItemForGridState extends State<SelectedItemForGrid> {
       );
     } else {
       return Image.network(
-        widget.news?.imageUrl ?? '',
+        finalUrl,
         fit: BoxFit.cover,
         width: double.infinity,
         height: double.infinity,
@@ -67,7 +75,8 @@ class _SelectedItemForGridState extends State<SelectedItemForGrid> {
   }
 
   Widget _buildChannelAvatar(bool isTelegram) {
-    if (isTelegram && imageUrlCover != null && _token != null) {
+    // Burada da boş URL yoxlaması mütləqdir
+    if (isTelegram && imageUrlCover != null && imageUrlCover!.isNotEmpty && _token != null) {
       return ClipOval(
         child: Image.network(
           imageUrlCover!,
@@ -96,7 +105,8 @@ class _SelectedItemForGridState extends State<SelectedItemForGrid> {
   Widget build(BuildContext context) {
     final newsProvider = Provider.of<NewsProvider>(context, listen: false);
     bool isTelegram = newsProvider.statucCode != 1;
-
+    final favouriteProvider=Provider.of<FavouriteProvider>(context,listen: true);
+    final bool isSavedLocally = favouriteProvider.isItemSaved(widget.news!.id!);
     return GestureDetector(
       onTap: (){
         Navigator.push(
@@ -105,8 +115,9 @@ class _SelectedItemForGridState extends State<SelectedItemForGrid> {
             builder: (_) => NewsItem(
               image: newsProvider.statucCode==1 ? widget.news!.imageUrl : imageUrlNews,
               title: widget.news!.title ,
-              id: widget.news!.id.toString(),
+              id: widget.news!.id!,
               text:  widget.news!.text ,
+              channelId: widget.news!.channel_Id,
               isSaved: widget.news!.isSaved,
               date: widget.news!.scrapedAt.toString(),
             ),
@@ -175,8 +186,13 @@ class _SelectedItemForGridState extends State<SelectedItemForGrid> {
                     ),
                   ),
                 ),
-                if (widget.news?.isSaved ?? false)
-                  const Icon(Icons.bookmark, color: Color(0xFFF66F6A), size: 18),
+                if (isSavedLocally)
+                  const Icon(
+                    Icons.bookmark,
+                    color: Colors.amber,
+                    size: 20,
+                  ),
+
               ],
             ),
             const SizedBox(height: 4),

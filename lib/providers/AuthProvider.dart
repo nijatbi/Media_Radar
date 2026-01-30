@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:media_radar/models/Keyword.dart';
 import 'package:media_radar/models/Stream.dart';
+import 'package:media_radar/providers/NewsProvider.dart';
 import 'package:media_radar/services/AuthService.dart';
 import 'package:media_radar/services/SecureStorageService.dart';
 import 'package:media_radar/views/RegisterAndLogin/Login.dart';
@@ -20,7 +21,6 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       final token = await SecureStorageService.getToken();
-      print("Sonuncu token  : ${token}");
       if (token == null) {
         isLoggedIn = false;
         isLoading = false;
@@ -40,7 +40,6 @@ class AuthProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
         user = User.fromJson(data);
-        print('Gelen user : ${user}');
         notifyListeners();
 
         isLoggedIn = true;
@@ -72,7 +71,6 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> addStreamToUser(String streamName, List<String> keywords, BuildContext context) async {
     final auth_token = await SecureStorageService.getToken();
-    print("Sonuncu token  : $auth_token");
 
     if (auth_token == null || auth_token.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -121,12 +119,29 @@ class AuthProvider extends ChangeNotifier {
         );
       }
     } catch (e) {
-      print(e);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Xəta: $e')),
       );
     }
   }
 
+  Future<void> activateStream(int?id,NewsProvider newsProvider)async{
+    try{
+      final auth_token = await SecureStorageService.getToken();
+
+      if (auth_token == null || auth_token.isEmpty) {
+        print('Token yoxdur');
+      }
+      final response=await http.post(Uri.parse("${AuthService.baseUrl}/streams/deactivate_stream"),
+      headers: {
+        'Authorization': "Bearer $auth_token",
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },body: {
+          id
+          }
+      );
+    }
+  }
 
 }

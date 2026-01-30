@@ -14,11 +14,13 @@ class News {
   final int? similarsCount;
   final List<News>? similarNews;
   final String? channelImage;
+  final int? channel_Id;
 
   News({
     this.id,
     this.channelImage,
     this.domain,
+    this.channel_Id,
     this.url,
     this.title,
     this.text,
@@ -54,7 +56,7 @@ class News {
           : null,
       isSaved: json['is_saved'] as bool?,
       similarsCount: json['similars_count'] as int?,
-      // 🔥 KRİTİK DÜZƏLİŞ: 'as List?' yerinə 'is List' yoxlanışı
+
       similarNews: (json['similar_news'] != null && json['similar_news'] is List)
           ? (json['similar_news'] as List)
           .map((e) => News.fromJson(e as Map<String, dynamic>))
@@ -76,11 +78,12 @@ class News {
     }
 
     return News(
-      id: json['pm_pk'] as int? ?? json['post_id'] as int?,
+      id:  json['message_id'] as int?,
       domain: json['channel_name'] as String?,
       url: json['link_for_post'] as String?,
       title: json['channel_username'] as String?,
       text: json['post_content'] as String?,
+      channel_Id: json['channel_id']  ?? 0,
       channelImage: getFirstValidPath(json['channel_image_filenames']),
       imageUrl: getFirstValidPath(json['post_image_filenames']),
       publishedAt: json['post_publish_date'] != null

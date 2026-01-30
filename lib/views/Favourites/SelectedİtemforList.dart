@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:media_radar/providers/NewsProvider.dart';
 import 'package:media_radar/services/SecureStorageService.dart';
 import '../../models/New.dart';
+import '../../providers/FavouriteProvider.dart';
 import '../dailies/NewsItem.dart';
 
 class SelectedItemForList extends StatefulWidget {
@@ -55,7 +56,8 @@ class _SelectedItemForListState extends State<SelectedItemForList> {
   Widget build(BuildContext context) {
     final newsProvider = Provider.of<NewsProvider>(context, listen: false);
     final isTelegram = newsProvider.statucCode != 1;
-
+    final favouriteProvider=Provider.of<FavouriteProvider>(context,listen: true);
+    final bool isSavedLocally = favouriteProvider.isItemSaved(widget.news!.id!);
     return GestureDetector(
       onTap: (){
         Navigator.push(
@@ -64,8 +66,9 @@ class _SelectedItemForListState extends State<SelectedItemForList> {
             builder: (_) => NewsItem(
               image: newsProvider.statucCode==1 ? widget.news!.imageUrl : imageUrlNews,
               title: widget.news!.title ,
-              id: widget.news!.id.toString(),
+              id: widget.news!.id!,
               text:  widget.news!.text ,
+              channelId: widget.news!.channel_Id,
               isSaved: widget.news!.isSaved,
               date: widget.news!.scrapedAt.toString(),
             ),
@@ -105,8 +108,12 @@ class _SelectedItemForListState extends State<SelectedItemForList> {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        if (widget.news?.isSaved ?? false)
-                          const Icon(Icons.bookmark, size: 20, color: Color(0xFFF66F6A)),
+                        if (isSavedLocally)
+                          const Icon(
+                            Icons.bookmark,
+                            color: Colors.amber,
+                            size: 20,
+                          ),
                       ],
                     ),
                     const SizedBox(height: 6),

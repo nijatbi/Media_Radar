@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart' show CupertinoActivityIndicator;
 import 'package:flutter/material.dart';
+import 'package:media_radar/providers/FavouriteProvider.dart';
 import 'package:media_radar/providers/NewsProvider.dart';
 import 'package:provider/provider.dart';
 
@@ -7,13 +9,15 @@ class NewsItem extends StatefulWidget {
   final String? title;
   final String? text;
   final String date;
+  final int? channelId;
   final bool? isSaved;
-  final String id;
+  final int id;
   final String? descFull;
 
   const NewsItem({
     super.key,
     this.image,
+    this.channelId,
     this.descFull,
     this.isSaved,
     this.title,
@@ -37,13 +41,18 @@ class _NewsItemState extends State<NewsItem> {
   }
 
   bool _isValidUrl(String? url) {
-    if (url == null || url.isEmpty || url.toLowerCase() == "null") return false;
+    if (url == null || url.trim().isEmpty || url.toLowerCase() == "null") {
+      return false;
+    }
     return url.startsWith('http');
   }
 
   @override
   Widget build(BuildContext context) {
     final newsProvider = Provider.of<NewsProvider>(context, listen: false);
+
+    final favouriteProvider = Provider.of<FavouriteProvider>(context);
+    final bool isSavedLocally = favouriteProvider.isItemSaved(widget.id);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -61,14 +70,36 @@ class _NewsItemState extends State<NewsItem> {
             icon: const Icon(Icons.share, color: Colors.white),
             onPressed: () {},
           ),
-          IconButton(
-            icon: !widget.isSaved!
-                ? const Icon(Icons.bookmark_border, color: Colors.white)
-                : const Icon(Icons.bookmark, color: Colors.amber),
-            onPressed: () {
 
+
+          favouriteProvider.isLoading
+              ? const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12.0),
+            child: CupertinoActivityIndicator(color: Colors.white),
+          )
+              : IconButton(
+            icon: Icon(
+              isSavedLocally ? Icons.bookmark : Icons.bookmark_border,
+              color: isSavedLocally ? Colors.amber : Colors.white,
+            ),
+            onPressed: () {
+              if (newsProvider.statucCode == 1) {
+                if (isSavedLocally) {
+                  favouriteProvider.deleteNewsFromMainProvider(widget.id, newsProvider);
+                } else {
+                  favouriteProvider.addNewsToFavourite(widget.id, newsProvider);
+                }
+              }
+              else {
+                if (isSavedLocally) {
+                  favouriteProvider.deleteNewsFromTelegram(widget.channelId,widget.id,newsProvider);
+                } else {
+                  favouriteProvider.addNewsToFavouriteInTelegram(widget.channelId!,widget.id, newsProvider);
+                }
+              }
             },
           ),
+
           IconButton(
             icon: const Icon(Icons.more_vert, color: Colors.white),
             onPressed: () {},
@@ -85,11 +116,14 @@ class _NewsItemState extends State<NewsItem> {
                 children: [
                   _isValidUrl(widget.image)
                       ? Image.network(
-                    widget.image!,
+                    widget.image!.trim(),
                     fit: BoxFit.cover,
                     width: double.infinity,
                     height: MediaQuery.of(context).size.height * 0.45,
-                    errorBuilder: (context, error, stackTrace) => _buildErrorPlaceholder(),
+                    errorBuilder: (context, error, stackTrace) {
+                      print("Şəkil yüklənmə xətası: $error");
+                      return _buildErrorPlaceholder();
+                    },
                   )
                       : _buildErrorPlaceholder(),
                   Container(
@@ -99,7 +133,7 @@ class _NewsItemState extends State<NewsItem> {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          Colors.black.withOpacity(0.6),
+                          Colors.black.withOpacity(0.3),
                           Colors.transparent,
                         ],
                       ),
@@ -108,7 +142,6 @@ class _NewsItemState extends State<NewsItem> {
                 ],
               ),
             ),
-
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: Column(
@@ -118,14 +151,16 @@ class _NewsItemState extends State<NewsItem> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 5),
                         decoration: BoxDecoration(
                           color: Colors.green.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child:  Text(
+                        child: const Text(
                           "Gündəm",
-                          style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              color: Colors.green, fontWeight: FontWeight.bold),
                         ),
                       ),
                       Text(
@@ -135,7 +170,6 @@ class _NewsItemState extends State<NewsItem> {
                     ],
                   ),
                   const SizedBox(height: 15),
-
                   Text(
                     widget.title ?? "",
                     style: const TextStyle(
@@ -144,11 +178,9 @@ class _NewsItemState extends State<NewsItem> {
                       height: 1.2,
                     ),
                   ),
-
                   const SizedBox(height: 15),
                   const Divider(),
                   const SizedBox(height: 15),
-
                   Text(
                     widget.text ?? "",
                     style: const TextStyle(

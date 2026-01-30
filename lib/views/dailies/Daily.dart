@@ -136,7 +136,7 @@ class _DailyState extends State<Daily> {
                         categoryName: item.category ?? "Gündəm",
                         date: item.scrapedAt?.toString().split('.').first ?? "",
                         desc: displayDesc,
-                        id: item.id?.toString() ?? index.toString(),
+                        id: item.id!,
                       );
                     },
                     pagination: const SwiperPagination(

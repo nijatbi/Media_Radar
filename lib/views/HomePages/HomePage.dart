@@ -5,6 +5,9 @@ import 'package:media_radar/views/HomePages/HomeContent.dart';
 import 'package:media_radar/views/accounts/Account.dart';
 import 'package:media_radar/views/accounts/Profile.dart';
 import 'package:media_radar/views/dailies/Daily.dart';
+import 'package:provider/provider.dart';
+
+import '../../providers/FavouriteProvider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -48,7 +51,7 @@ class _HomePageState extends State<HomePage> {
             showSelectedLabels: false,
             showUnselectedLabels: false,
             backgroundColor: Colors.white,
-            items: const [
+            items:  [
               BottomNavigationBarItem(
                 icon: Icon(Icons.home_outlined, size: 30,fontWeight: FontWeight.w400,),
                 label: 'Ana səhifə',
@@ -58,7 +61,17 @@ class _HomePageState extends State<HomePage> {
                 label: 'Gündəm',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.bookmark),
+                icon: Consumer<FavouriteProvider>(
+                  builder: (context, favProvider, child) {
+                    int count = favProvider.favouritesList?.length ?? 0;
+                    return Badge(
+                      label: Text(count.toString()),
+                      isLabelVisible: count > 0,
+                      backgroundColor: Colors.red,
+                      child: const Icon(Icons.bookmark),
+                    );
+                  },
+                ),
                 label: 'Seçilmişlər',
               ),
               BottomNavigationBarItem(

@@ -106,7 +106,6 @@ class NewsProvider extends ChangeNotifier {
         endDate: endStr,
         page: page,
       );
-
       if (append) {
         newsList = [...?newsList, ...fetchedNews];
       } else {

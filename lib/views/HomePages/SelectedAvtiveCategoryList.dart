@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-
+import 'package:media_radar/providers/AuthProvider.dart';
+import 'package:provider/provider.dart';
 import '../../constants/Constant.dart';
 import 'CategoryItem.dart';
 void selectedActiveCategory(BuildContext context) {
@@ -49,9 +50,37 @@ void selectedActiveCategory(BuildContext context) {
                         ),
                         child: SingleChildScrollView(
                           child: Column(
-                            children: List.generate(6, (index) {
-                              return CategoryItem();
-                            }),
+                            children: [
+                              Consumer<AuthProvider>(
+                                builder: (context, provider, child) {
+                                  final user = provider.user;
+
+
+                                  if (user == null || user.streams == null || user.streams!.isEmpty) {
+                                    return const Center(
+                                      child: Padding(
+                                        padding: EdgeInsets.all(20.0),
+                                        child: Text('Kateqoriya mövcud deyil...'),
+                                      ),
+                                    );
+                                  }
+
+                                  return ListView.builder(
+                                    shrinkWrap: true,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    itemCount: user.streams!.length,
+                                    itemBuilder: (context, index) {
+                                      final returnStream = user.streams![index];
+                                      return CategoryItem(
+                                        id: returnStream.id!,
+                                        name: returnStream.name,
+                                        is_active: returnStream.is_active,
+                                      );
+                                    },
+                                  );
+                                },
+                              )
+                            ]
                           ),
                         ),
                       ),
