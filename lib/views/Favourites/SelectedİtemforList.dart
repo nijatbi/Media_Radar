@@ -75,71 +75,68 @@ class _SelectedItemForListState extends State<SelectedItemForList> {
           ),
         );
       },
-      child: Hero(
-        tag: widget.news!.id!,
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 20),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Container(
-                  width: 100,
-                  height: 100,
-                  color: Colors.grey[200],
-                  child: _buildMainImage(isTelegram),
-                ),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 20),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Container(
+                width: 100,
+                height: 100,
+                color: Colors.grey[200],
+                child: _buildMainImage(isTelegram),
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        _buildChannelAvatar(isTelegram),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            widget.news?.domain ?? '',
-                            style: const TextStyle(fontSize: 10),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      _buildChannelAvatar(isTelegram),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          widget.news?.domain ?? '',
+                          style: const TextStyle(fontSize: 10),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        if (isSavedLocally)
-                          const Icon(
-                            Icons.bookmark,
-                            color: Colors.amber,
-                            size: 20,
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      isTelegram
-                          ? ((widget.news?.text ?? "").length > 35
-                          ? "${widget.news!.text!.substring(0, 35)}..."
-                          : (widget.news?.title ?? ""))
-                          : (widget.news?.title ?? ""),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
                       ),
+                      if (isSavedLocally)
+                        const Icon(
+                          Icons.bookmark,
+                          color: Colors.amber,
+                          size: 20,
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    isTelegram
+                        ? ((widget.news?.text ?? "").length > 35
+                        ? "${widget.news!.text!.substring(0, 35)}..."
+                        : (widget.news?.title ?? ""))
+                        : (widget.news?.title ?? ""),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      formatDate(widget.news?.scrapedAt?.toString() ?? ''),
-                      style: TextStyle(fontSize: 10, color: Colors.grey[600]),
-                    ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    formatDate(widget.news?.scrapedAt?.toString() ?? ''),
+                    style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

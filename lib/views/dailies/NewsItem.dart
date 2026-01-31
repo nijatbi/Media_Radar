@@ -1,8 +1,12 @@
 import 'package:flutter/cupertino.dart' show CupertinoActivityIndicator;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:media_radar/providers/AuthProvider.dart';
 import 'package:media_radar/providers/FavouriteProvider.dart';
 import 'package:media_radar/providers/NewsProvider.dart';
 import 'package:provider/provider.dart';
+
+import '../../services/SecureStorageService.dart';
 
 class NewsItem extends StatefulWidget {
   final String? image;
@@ -31,6 +35,57 @@ class NewsItem extends StatefulWidget {
 }
 
 class _NewsItemState extends State<NewsItem> {
+
+  String? _token;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadToken();
+  }
+
+  Future<void> _loadToken() async {
+    final token = await SecureStorageService.getToken();
+    if (mounted) {
+      setState(() {
+        _token = token;
+      });
+    }
+  }
+
+
+  List<TextSpan> _getHighlightedText(String fullText, List<String> keywords) {
+    if (keywords.isEmpty) return [TextSpan(text: fullText)];
+
+    final String patternString = keywords.map((k) => RegExp.escape(k)).join('|');
+    final pattern = RegExp('($patternString)', caseSensitive: false);
+    final matches = pattern.allMatches(fullText);
+
+    List<TextSpan> spans = [];
+    int lastMatchEnd = 0;
+
+    for (final match in matches) {
+      if (match.start > lastMatchEnd) {
+        spans.add(TextSpan(text: fullText.substring(lastMatchEnd, match.start)));
+      }
+      spans.add(TextSpan(
+        text: fullText.substring(match.start, match.end),
+        style: TextStyle(
+          backgroundColor: Colors.yellow.withOpacity(0.7),
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+        ),
+      ));
+      lastMatchEnd = match.end;
+    }
+
+    if (lastMatchEnd < fullText.length) {
+      spans.add(TextSpan(text: fullText.substring(lastMatchEnd)));
+    }
+
+    return spans;
+  }
+
   String _formatDate(String rawDate) {
     if (rawDate.isEmpty) return "";
     try {
@@ -41,24 +96,48 @@ class _NewsItemState extends State<NewsItem> {
   }
 
   bool _isValidUrl(String? url) {
-    if (url == null || url.trim().isEmpty || url.toLowerCase() == "null") {
-      return false;
-    }
+    if (url == null || url.trim().isEmpty || url.toLowerCase() == "null") return false;
     return url.startsWith('http');
+  }
+
+  void copyNewsLink(int id, String date) {
+    final String shareLink = "https://www.mediaradar.com/newsItem?id=$id&date=$date";
+    Clipboard.setData(ClipboardData(text: shareLink)).then((_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Link kopyalandı!"),),
+      );
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final newsProvider = Provider.of<NewsProvider>(context, listen: false);
-
     final favouriteProvider = Provider.of<FavouriteProvider>(context);
+    final authProvider = Provider.of<AuthProvider>(context);
+
+    List<String> allKeywords = [];
+    if (authProvider.user != null && authProvider.user!.streams != null) {
+      for (var stream in authProvider.user!.streams!) {
+        if (stream.is_active == true) {
+          allKeywords.addAll(stream.keywords?.map((k) => k.value ?? "").toList() ?? []);
+        }
+      }
+    }
+    allKeywords = allKeywords.where((k) => k.isNotEmpty).toSet().toList();
+
+    int foundCount = 0;
+    if (widget.text != null && allKeywords.isNotEmpty) {
+      final String patternString = allKeywords.map((k) => RegExp.escape(k)).join('|');
+      final pattern = RegExp('($patternString)', caseSensitive: false);
+      foundCount = pattern.allMatches(widget.text!).length;
+    }
+
     final bool isSavedLocally = favouriteProvider.isItemSaved(widget.id);
 
     return Scaffold(
       backgroundColor: Colors.white,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text(""),
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
@@ -67,11 +146,9 @@ class _NewsItemState extends State<NewsItem> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.share, color: Colors.white),
-            onPressed: () {},
+            icon: const Icon(Icons.link, color: Colors.white),
+            onPressed: () => copyNewsLink(widget.id, widget.date),
           ),
-
-
           favouriteProvider.isLoading
               ? const Padding(
             padding: EdgeInsets.symmetric(horizontal: 12.0),
@@ -84,118 +161,151 @@ class _NewsItemState extends State<NewsItem> {
             ),
             onPressed: () {
               if (newsProvider.statucCode == 1) {
-                if (isSavedLocally) {
-                  favouriteProvider.deleteNewsFromMainProvider(widget.id, newsProvider);
-                } else {
-                  favouriteProvider.addNewsToFavourite(widget.id, newsProvider);
-                }
-              }
-              else {
-                if (isSavedLocally) {
-                  favouriteProvider.deleteNewsFromTelegram(widget.channelId,widget.id,newsProvider);
-                } else {
-                  favouriteProvider.addNewsToFavouriteInTelegram(widget.channelId!,widget.id, newsProvider);
-                }
+                isSavedLocally
+                    ? favouriteProvider.deleteNewsFromMainProvider(widget.id, newsProvider)
+                    : favouriteProvider.addNewsToFavourite(widget.id, newsProvider);
+              } else {
+                isSavedLocally
+                    ? favouriteProvider.deleteNewsFromTelegram(widget.channelId, widget.id, newsProvider)
+                    : favouriteProvider.addNewsToFavouriteInTelegram(widget.channelId!, widget.id, newsProvider);
               }
             },
           ),
-
           IconButton(
-            icon: const Icon(Icons.more_vert, color: Colors.white),
+            icon: const Icon(Icons.ios_share, color: Colors.white),
             onPressed: () {},
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Hero(
-              tag: widget.id,
-              child: Stack(
-                children: [
-                  _isValidUrl(widget.image)
-                      ? Image.network(
-                    widget.image!.trim(),
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: MediaQuery.of(context).size.height * 0.45,
-                    errorBuilder: (context, error, stackTrace) {
-                      print("Şəkil yüklənmə xətası: $error");
-                      return _buildErrorPlaceholder();
-                    },
-                  )
-                      : _buildErrorPlaceholder(),
-                  Container(
-                    height: 120,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.black.withOpacity(0.3),
-                          Colors.transparent,
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Hero(
+                  tag: widget.id,
+                  child: Stack(
                     children: [
+                      _isValidUrl(widget.image)
+                          ? (newsProvider.statucCode != 1
+                          ? (_token == null
+                          ? Container(
+                        width: double.infinity,
+                        height: MediaQuery.of(context).size.height * 0.45,
+                        color: Colors.grey[100],
+                        child: const Center(child: CupertinoActivityIndicator()),
+                      )
+                          : Image.network(
+                        widget.image!.trim(),
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: MediaQuery.of(context).size.height * 0.45,
+                        headers: {'Authorization': "Bearer $_token"},
+                        errorBuilder: (context, error, stackTrace) => _buildErrorPlaceholder(),
+                      ))
+                          : Image.network(
+                        widget.image!.trim(),
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: MediaQuery.of(context).size.height * 0.45,
+                        errorBuilder: (context, error, stackTrace) => _buildErrorPlaceholder(),
+                      ))
+                          : _buildErrorPlaceholder(),
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 5),
+                        height: 120,
                         decoration: BoxDecoration(
-                          color: Colors.green.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(10),
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [Colors.black.withOpacity(0.3), Colors.transparent],
+                          ),
                         ),
-                        child: const Text(
-                          "Gündəm",
-                          style: TextStyle(
-                              color: Colors.green, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      Text(
-                        _formatDate(widget.date),
-                        style: const TextStyle(color: Colors.grey, fontSize: 13),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 15),
-                  Text(
-                    widget.title ?? "",
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      height: 1.2,
-                    ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: Colors.green.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Text("Gündəm", style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+                          ),
+                          Text(_formatDate(widget.date), style: const TextStyle(color: Colors.grey, fontSize: 13)),
+                        ],
+                      ),
+                      const SizedBox(height: 15),
+                      Text(
+                        widget.title ?? "",
+                        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, height: 1.2),
+                      ),
+                      const SizedBox(height: 15),
+                      const Divider(),
+                      const SizedBox(height: 15),
+
+                      RichText(
+                        text: TextSpan(
+                          style: const TextStyle(fontSize: 16, color: Colors.black87, height: 1.6, letterSpacing: 0.3),
+                          children: _getHighlightedText(widget.text ?? "", allKeywords),
+                        ),
+                      ),
+                      const SizedBox(height: 120),
+                    ],
                   ),
-                  const SizedBox(height: 15),
-                  const Divider(),
-                  const SizedBox(height: 15),
-                  Text(
-                    widget.text ?? "",
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.black87,
-                      height: 1.6,
-                      letterSpacing: 0.3,
+                ),
+              ],
+            ),
+          ),
+
+          Positioned(
+            bottom: 30,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.85),
+                  borderRadius: BorderRadius.circular(35),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 15,
+                      offset: const Offset(0, 8),
+                    )
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.star, color: Colors.amber, size: 18),
+                    const SizedBox(width: 10),
+                    Text(
+                      foundCount > 0
+                          ? "Tapılan açar sözlər: $foundCount"
+                          : "Tapılan açar sözlər : 0",
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 50),
-                ],
+                  ],
+                ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

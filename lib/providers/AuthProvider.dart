@@ -69,7 +69,7 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> addStreamToUser(String streamName, List<String> keywords, BuildContext context) async {
+  Future<void> addStreamToUser(String streamName, List<String> keywords, BuildContext context,NewsProvider newsProvider) async {
     final auth_token = await SecureStorageService.getToken();
 
     if (auth_token == null || auth_token.isEmpty) {
@@ -111,6 +111,13 @@ class AuthProvider extends ChangeNotifier {
 
         if (user != null) {
           user!.streams!.add(newStream);
+          await getCurrentUser();
+          if(newsProvider.statucCode==1){
+            await newsProvider.getAllnewsByStreamKeyword(page: 1,append: false);
+          }
+          else{
+            await newsProvider.getAllnewsByTelegram(page: 1,append: false);
+          }
           notifyListeners();
         }
 
@@ -125,23 +132,48 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> activateStream(int?id,NewsProvider newsProvider)async{
-    try{
-      final auth_token = await SecureStorageService.getToken();
-
-      if (auth_token == null || auth_token.isEmpty) {
-        print('Token yoxdur');
+  Future<void> activeStreamAndGetData(List<int>? ids,NewsProvider newsProvider,) async{
+    final response=await AuthService.activateStream(ids!);
+    if(response){
+      if(newsProvider.statucCode==1){
+        newsProvider.getAllnewsByStreamKeyword(page: 1,append: false);
+        notifyListeners();
       }
-      final response=await http.post(Uri.parse("${AuthService.baseUrl}/streams/deactivate_stream"),
-      headers: {
-        'Authorization': "Bearer $auth_token",
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },body: {
-          id
-          }
-      );
+      else{
+        newsProvider.getAllnewsByTelegram(page: 1,append: false);
+        notifyListeners();
+      }
+    }
+
+  }
+  Future<void> deActiveStreamAndGetData(List<int>? ids,NewsProvider newsProvider,) async{
+    final response=await AuthService.deActivateStream(ids!);
+    if(response){
+      if(newsProvider.statucCode==1){
+        newsProvider.getAllnewsByStreamKeyword(page: 1,append: false);
+        notifyListeners();
+      }
+      else{
+        newsProvider.getAllnewsByTelegram(page: 1,append: false);
+        notifyListeners();
+      }
     }
   }
+
+  Future<void> deleteStream(int?id,NewsProvider newsProvider)async{
+    final response=await AuthService.deleteStream(id);
+    if(response){
+      await getCurrentUser();
+      if(newsProvider.statucCode==1){
+        newsProvider.getAllnewsByStreamKeyword(page: 1,append: false);
+      }
+      else{
+        newsProvider.getAllnewsByTelegram(page: 1,append: false);
+      }
+      notifyListeners();
+    }
+  }
+
+
 
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:media_radar/constants/Constant.dart';
+import 'package:media_radar/providers/NewsProvider.dart';
 import 'package:provider/provider.dart';
 import '../../providers/AuthProvider.dart';
 import '../HomePages/AddCreateCategoryAppBar.dart';
@@ -15,8 +17,6 @@ class _CategoryAndKeyListState extends State<CategoryAndKeyList> {
   @override
   void initState() {
     super.initState();
-
-
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       await authProvider.getCurrentUser();
@@ -25,6 +25,7 @@ class _CategoryAndKeyListState extends State<CategoryAndKeyList> {
 
   @override
   Widget build(BuildContext context) {
+    final newsProvider=Provider.of<NewsProvider>(context,listen: false);
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
@@ -43,9 +44,7 @@ class _CategoryAndKeyListState extends State<CategoryAndKeyList> {
           ),
           actions: [
             GestureDetector(
-              onTap: () {
-                addCategoryAppBar(context);
-              },
+              onTap: () => addCategoryAppBar(context),
               child: Container(
                 margin: const EdgeInsets.only(right: 15, left: 5),
                 width: 40,
@@ -73,7 +72,6 @@ class _CategoryAndKeyListState extends State<CategoryAndKeyList> {
                 ),
               ),
               const SizedBox(height: 20),
-
               Expanded(
                 child: Consumer<AuthProvider>(
                   builder: (context, authProvider, child) {
@@ -97,33 +95,77 @@ class _CategoryAndKeyListState extends State<CategoryAndKeyList> {
                         final group = user.streams![index];
                         final isLast = index == user.streams!.length - 1;
 
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 0),
-                              child: Text(
-                                group.name,
-                                style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.black),
+                        return Slidable(
+                          key: ValueKey(group.id),
+
+
+                          endActionPane: ActionPane(
+                            motion: const DrawerMotion(),
+                            extentRatio: 0.2,
+                            children: [
+
+                              SlidableAction(
+                                onPressed: (ctx) async {
+
+                                  await authProvider.deleteStream(group.id,newsProvider);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text("${group.name} silindi"),
+                                    ),
+                                  );
+                                },
+                                backgroundColor: Colors.red,
+                                foregroundColor: Colors.white,
+                                icon: Icons.delete,
+                                label: "Sil",
                               ),
-                            ),
-                            const SizedBox(height: 5),
-                            Wrap(
-                              spacing: 10,
-                              runSpacing: 10,
-                              children: group.keywords
-                                  .map((keyword) => _buildTag(keyword.value))
-                                  .toList(),
-                            ),
-                            if (!isLast) ...[
-                              const SizedBox(height: 10),
-                              Divider(color: Constant.inputBorderColor, thickness: 1),
-                              const SizedBox(height: 10),
                             ],
-                          ],
+                          ),
+
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      group.name,
+                                      style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black),
+                                    ),
+                                    Container(
+                                      padding: EdgeInsets.only(top: 3,bottom: 3,right: 4,left:   5),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.all(Radius.circular(25)),
+                                        color: group.is_active ? Colors.green : Colors.red
+                                      ),
+                                      child: Text('${group.is_active ? 'Active' : 'Deaktive'}',style: TextStyle(
+                                        fontSize: 9,color: Colors.white,
+                                        fontWeight: FontWeight.w500
+                                      ),),
+                                    )
+                                  ],
+                                )
+                              ),
+                              const SizedBox(height: 5),
+                              Wrap(
+                                spacing: 10,
+                                runSpacing: 10,
+                                children: group.keywords
+                                    .map((keyword) => _buildTag(keyword.value))
+                                    .toList(),
+                              ),
+                              if (!isLast) ...[
+                                const SizedBox(height: 15),
+                                Divider(color: Constant.inputBorderColor, thickness: 1),
+                                const SizedBox(height: 10),
+                              ],
+                            ],
+                          ),
                         );
                       },
                     );

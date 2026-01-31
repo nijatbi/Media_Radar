@@ -1,17 +1,20 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:media_radar/providers/AuthProvider.dart';
+import 'package:media_radar/providers/NewsProvider.dart';
 import 'package:provider/provider.dart';
 import '../../constants/Constant.dart';
 
 void addCategoryAppBar(BuildContext context) {
   final TextEditingController categoryCtrl = TextEditingController();
   final TextEditingController keywordCtrl = TextEditingController();
+  final newsProvider=Provider.of<NewsProvider>(context,listen: false);
   List<String> keywords = [];
   var _formKey = GlobalKey<FormState>();
   bool showAddIcon = false;
   String erorText='';
   Widget _buildTag(String text, VoidCallback onRemove) {
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
@@ -234,7 +237,7 @@ void addCategoryAppBar(BuildContext context) {
                             if (categoryCtrl.text.trim().isEmpty) return;
 
                             await authProvider.addStreamToUser(
-                                categoryCtrl.text.trim(), keywords, context);
+                                categoryCtrl.text.trim(), keywords, context,newsProvider);
 
                             Navigator.pop(context);
                           }

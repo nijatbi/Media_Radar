@@ -124,84 +124,81 @@ class _SelectedItemForGridState extends State<SelectedItemForGrid> {
           ),
         );
       },
-      child: Hero(
-        tag: widget.news!.id!,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(
-              children: [
-                Container(
-                  height: 120,
-                  width: double.infinity,
-                  clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Stack(
+            children: [
+              Container(
+                height: 120,
+                width: double.infinity,
+                clipBehavior: Clip.antiAlias,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  color: Colors.grey[200],
+                ),
+                child: _buildMainImage(isTelegram),
+              ),
+              Positioned(
+                bottom: 8,
+                left: 8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    color: Colors.grey[200],
+                    color: Colors.white.withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: _buildMainImage(isTelegram),
-                ),
-                Positioned(
-                  bottom: 8,
-                  left: 8,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.9),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _buildChannelAvatar(isTelegram),
-                        const SizedBox(width: 5),
-                        Text(
-                          widget.news?.domain ?? 'Media',
-                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildChannelAvatar(isTelegram),
+                      const SizedBox(width: 5),
+                      Text(
+                        widget.news?.domain ?? 'Media',
+                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 8),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
 
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Text(
-                    (context.watch<NewsProvider>().statucCode != 1)
-                        ? ((widget.news?.text ?? "").length > 35
-                        ? "${widget.news!.text!.substring(0, 35)}..."
-                        : (widget.news?.title ?? ""))
-                        : (widget.news?.title ?? ""),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  (context.watch<NewsProvider>().statucCode != 1)
+                      ? ((widget.news?.text ?? "").length > 35
+                      ? "${widget.news!.text!.substring(0, 35)}..."
+                      : (widget.news?.title ?? ""))
+                      : (widget.news?.title ?? ""),
 
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                    ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-                if (isSavedLocally)
-                  const Icon(
-                    Icons.bookmark,
-                    color: Colors.amber,
-                    size: 20,
-                  ),
+              ),
+              if (isSavedLocally)
+                const Icon(
+                  Icons.bookmark,
+                  color: Colors.amber,
+                  size: 20,
+                ),
 
-              ],
-            ),
-            const SizedBox(height: 4),
-            Text(
-              formatDate(widget.news?.scrapedAt?.toString()),
-              style: TextStyle(fontSize: 10, color: Colors.grey[600]),
-            ),
-          ],
-        ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            formatDate(widget.news?.scrapedAt?.toString()),
+            style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+          ),
+        ],
       ),
     );
   }
