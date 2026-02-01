@@ -140,7 +140,7 @@ class _DailyNewItemState extends State<DailyNewItem> {
                 Image.network(
                   finalImageUrl!,
                   headers: headers,
-                  fit: BoxFit.contain,
+                  fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) => _buildErrorPlaceholder(),
 
                 )

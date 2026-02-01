@@ -20,7 +20,7 @@ class _LoginPageState extends State<LoginPage> {
   String errorText = '';
   final _formKey = GlobalKey<FormState>();
   bool _obscureText = true;
-  bool _isLoading = false; // Giriş zamanı düymənin vəziyyəti üçün
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,6 @@ class _LoginPageState extends State<LoginPage> {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
-          // Klaviatura açılan zaman overflow-un qarşısını alır
           physics: const BouncingScrollPhysics(),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -165,6 +164,29 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       const SizedBox(height: 20),
+
+                      SizedBox(
+                        width: double.infinity,
+                        height: 55,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.black,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(50)),
+
+                            elevation: 8,
+                            shadowColor: Colors.black.withOpacity(0.3),
+                          ),
+                          onPressed:(){
+                            Navigator.pushNamed(context, '/register');
+                          },
+                          child:Text(
+                            'Qeydiyyatdan keç',
+                            style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
