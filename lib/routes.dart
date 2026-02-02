@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:media_radar/views/Favourites/SelectedList.dart';
 import 'package:media_radar/views/RegisterAndLogin/Login.dart';
+import 'package:media_radar/views/RegisterAndLogin/OtpRegister.dart';
 import 'package:media_radar/views/RegisterAndLogin/Register.dart';
 import 'package:media_radar/views/accounts/Account.dart';
 import 'package:media_radar/views/accounts/Profile.dart';
@@ -15,6 +16,9 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (context) => const LoginPage());
       case '/register':
         return MaterialPageRoute(builder: (context) => const Register());
+      case '/otpRegister':
+        var emailAdres=settings.arguments as String;
+        return MaterialPageRoute(builder: (context) =>  OtpRegister(email:emailAdres ));
       case '/account':
         return MaterialPageRoute(builder: (context) => const Account());
       case '/profile':

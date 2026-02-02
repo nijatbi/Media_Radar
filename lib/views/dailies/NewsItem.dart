@@ -35,24 +35,25 @@ class NewsItem extends StatefulWidget {
 }
 
 class _NewsItemState extends State<NewsItem> {
-
   String? _token;
+  bool _isTokenLoaded = false;
 
   @override
   void initState() {
     super.initState();
-    _loadToken();
+    _loadInitialData();
   }
 
-  Future<void> _loadToken() async {
+  Future<void> _loadInitialData() async {
+    // Tokeni dərhal yükləyirik
     final token = await SecureStorageService.getToken();
     if (mounted) {
       setState(() {
         _token = token;
+        _isTokenLoaded = true;
       });
     }
   }
-
 
   List<TextSpan> _getHighlightedText(String fullText, List<String> keywords) {
     if (keywords.isEmpty) return [TextSpan(text: fullText)];
@@ -103,8 +104,9 @@ class _NewsItemState extends State<NewsItem> {
   void copyNewsLink(int id, String date) {
     final String shareLink = "https://www.mediaradar.com/newsItem?id=$id&date=$date";
     Clipboard.setData(ClipboardData(text: shareLink)).then((_) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Link kopyalandı!"),),
+        const SnackBar(content: Text("Link kopyalandı!")),
       );
     });
   }
@@ -115,8 +117,9 @@ class _NewsItemState extends State<NewsItem> {
     final favouriteProvider = Provider.of<FavouriteProvider>(context);
     final authProvider = Provider.of<AuthProvider>(context);
 
+    // Keyword hesablama məntiqi
     List<String> allKeywords = [];
-    if (authProvider.user != null && authProvider.user!.streams != null) {
+    if (authProvider.user?.streams != null) {
       for (var stream in authProvider.user!.streams!) {
         if (stream.is_active == true) {
           allKeywords.addAll(stream.keywords?.map((k) => k.value ?? "").toList() ?? []);
@@ -187,38 +190,14 @@ class _NewsItemState extends State<NewsItem> {
                   tag: widget.id,
                   child: Stack(
                     children: [
-                      _isValidUrl(widget.image)
-                          ? (newsProvider.statucCode != 1
-                          ? (_token == null
-                          ? Container(
-                        width: double.infinity,
-                        height: MediaQuery.of(context).size.height * 0.45,
-                        color: Colors.grey[100],
-                        child: const Center(child: CupertinoActivityIndicator()),
-                      )
-                          : Image.network(
-                        widget.image!.trim(),
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        height: MediaQuery.of(context).size.height * 0.45,
-                        headers: {'Authorization': "Bearer $_token"},
-                        errorBuilder: (context, error, stackTrace) => _buildErrorPlaceholder(),
-                      ))
-                          : Image.network(
-                        widget.image!.trim(),
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        height: MediaQuery.of(context).size.height * 0.45,
-                        errorBuilder: (context, error, stackTrace) => _buildErrorPlaceholder(),
-                      ))
-                          : _buildErrorPlaceholder(),
+                      _buildImageSection(newsProvider.statucCode),
                       Container(
                         height: 120,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
-                            colors: [Colors.black.withOpacity(0.3), Colors.transparent],
+                            colors: [Colors.black.withOpacity(0.4), Colors.transparent],
                           ),
                         ),
                       ),
@@ -252,7 +231,6 @@ class _NewsItemState extends State<NewsItem> {
                       const SizedBox(height: 15),
                       const Divider(),
                       const SizedBox(height: 15),
-
                       RichText(
                         text: TextSpan(
                           style: const TextStyle(fontSize: 16, color: Colors.black87, height: 1.6, letterSpacing: 0.3),
@@ -266,46 +244,90 @@ class _NewsItemState extends State<NewsItem> {
               ],
             ),
           ),
+          _buildFloatingBadge(foundCount),
+        ],
+      ),
+    );
+  }
 
-          Positioned(
-            bottom: 30,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 12),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.85),
-                  borderRadius: BorderRadius.circular(35),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.3),
-                      blurRadius: 15,
-                      offset: const Offset(0, 8),
-                    )
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.star, color: Colors.amber, size: 18),
-                    const SizedBox(width: 10),
-                    Text(
-                      foundCount > 0
-                          ? "Tapılan açar sözlər: $foundCount"
-                          : "Tapılan açar sözlər : 0",
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14
-                      ),
-                    ),
-                  ],
+  Widget _buildImageSection(int statusCode) {
+    if (!_isValidUrl(widget.image)) return _buildErrorPlaceholder();
+
+    if (statusCode == 1) {
+      return Image.network(
+        widget.image!.trim(),
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: MediaQuery.of(context).size.height * 0.45,
+        errorBuilder: (context, error, stackTrace) => _buildErrorPlaceholder(),
+      );
+    }
+
+    if (!_isTokenLoaded) {
+      return Container(
+        width: double.infinity,
+        height: MediaQuery.of(context).size.height * 0.45,
+        color: Colors.grey[100],
+        child: const Center(child: CupertinoActivityIndicator()),
+      );
+    }
+
+    return Image.network(
+      widget.image!.trim(),
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: MediaQuery.of(context).size.height * 0.45,
+      headers: {'Authorization': "Bearer $_token"},
+      errorBuilder: (context, error, stackTrace) => _buildErrorPlaceholder(),
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+        return Container(
+          width: double.infinity,
+          height: MediaQuery.of(context).size.height * 0.45,
+          color: Colors.grey[100],
+          child: const Center(child: CupertinoActivityIndicator()),
+        );
+      },
+    );
+  }
+
+  Widget _buildFloatingBadge(int foundCount) {
+    return Positioned(
+      bottom: 30,
+      left: 0,
+      right: 0,
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.85),
+            borderRadius: BorderRadius.circular(35),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.3),
+                blurRadius: 15,
+                offset: const Offset(0, 8),
+              )
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.star, color: Colors.amber, size: 18),
+              const SizedBox(width: 10),
+              Text(
+                foundCount > 0
+                    ? "Tapılan açar sözlər: $foundCount"
+                    : "Tapılan açar sözlər : 0",
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14
                 ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -313,7 +335,7 @@ class _NewsItemState extends State<NewsItem> {
   Widget _buildErrorPlaceholder() {
     return Container(
       width: double.infinity,
-      height: 350,
+      height: MediaQuery.of(context).size.height * 0.45,
       color: Colors.grey[300],
       child: const Icon(Icons.broken_image, size: 50, color: Colors.grey),
     );

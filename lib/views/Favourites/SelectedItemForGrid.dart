@@ -27,7 +27,6 @@ class _SelectedItemForGridState extends State<SelectedItemForGrid> {
   void initState() {
     super.initState();
     _loadData();
-
   }
 
   Future<void> _loadData() async {
@@ -44,51 +43,13 @@ class _SelectedItemForGridState extends State<SelectedItemForGrid> {
     }
   }
 
-  Widget _buildMainImage(bool isTelegram) {
-    String? finalUrl = isTelegram ? imageUrlNews : widget.news?.imageUrl;
-
-    if (finalUrl == null || finalUrl.trim().isEmpty) {
-      return const Center(child: Icon(Icons.broken_image, color: Colors.grey));
-    }
-
-    if (isTelegram) {
-      if (_token == null) {
-        return const Center(child: CupertinoActivityIndicator());
-      }
-      return Image.network(
-        finalUrl,
-        headers: {'Authorization': "Bearer $_token"},
-        fit: BoxFit.cover,
-        width: double.infinity,
-        height: double.infinity,
-        errorBuilder: (c, e, s) => const Icon(Icons.broken_image, color: Colors.grey),
-      );
-    } else {
-      return Image.network(
-        finalUrl,
-        fit: BoxFit.cover,
-        width: double.infinity,
-        height: double.infinity,
-        errorBuilder: (c, e, s) => const Icon(Icons.broken_image, color: Colors.grey),
-      );
-    }
-  }
-
-  Widget _buildChannelAvatar(bool isTelegram) {
-    // Burada da boş URL yoxlaması mütləqdir
-    if (isTelegram && imageUrlCover != null && imageUrlCover!.isNotEmpty && _token != null) {
-      return ClipOval(
-        child: Image.network(
-          imageUrlCover!,
-          headers: {'Authorization': "Bearer $_token"},
-          width: 16,
-          height: 16,
-          fit: BoxFit.cover,
-          errorBuilder: (c, e, s) => const Icon(Icons.account_circle, size: 16, color: Colors.grey),
-        ),
-      );
-    }
-    return const Icon(Icons.account_circle, size: 16, color: Colors.grey);
+  String domainImageUrl(String img) {
+    String cleanDomain = img
+        .replaceAll('https://', '')
+        .replaceAll('http://', '')
+        .split('/')
+        .first;
+    return 'https://www.google.com/s2/favicons?domain=$cleanDomain&sz=64';
   }
 
   String formatDate(String? dateStr) {
@@ -105,18 +66,19 @@ class _SelectedItemForGridState extends State<SelectedItemForGrid> {
   Widget build(BuildContext context) {
     final newsProvider = Provider.of<NewsProvider>(context, listen: false);
     bool isTelegram = newsProvider.statucCode != 1;
-    final favouriteProvider=Provider.of<FavouriteProvider>(context,listen: true);
-    final bool isSavedLocally = favouriteProvider.isItemSaved(widget.news!.id!);
+    final favouriteProvider = Provider.of<FavouriteProvider>(context, listen: true);
+    final bool isSavedLocally = favouriteProvider.isItemSaved(widget.news?.id ?? 0);
+
     return GestureDetector(
-      onTap: (){
+      onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (_) => NewsItem(
-              image: newsProvider.statucCode==1 ? widget.news!.imageUrl : imageUrlNews,
-              title: widget.news!.title ,
+              image: newsProvider.statucCode == 1 ? widget.news!.imageUrl : imageUrlNews,
+              title: widget.news!.title,
               id: widget.news!.id!,
-              text:  widget.news!.text ,
+              text: widget.news!.text,
               channelId: widget.news!.channel_Id,
               isSaved: widget.news!.isSaved,
               date: widget.news!.scrapedAt.toString(),
@@ -139,23 +101,33 @@ class _SelectedItemForGridState extends State<SelectedItemForGrid> {
                 ),
                 child: _buildMainImage(isTelegram),
               ),
+              // DƏYİŞİKLİK BURADADIR:
               Positioned(
                 bottom: 8,
                 left: 8,
+                // "right" parametrini sildik ki, tam width tutmasın
                 child: Container(
+                  constraints: BoxConstraints(
+                    // Şəklin enindən çox olmasın deyə maksimum limit qoyuruq (padding çıxmaqla)
+                    maxWidth: MediaQuery.of(context).size.width / 2 - 30,
+                  ),
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.9),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
-                    mainAxisSize: MainAxisSize.min,
+                    mainAxisSize: MainAxisSize.min, // İçindəki qədər yer tutur
                     children: [
                       _buildChannelAvatar(isTelegram),
                       const SizedBox(width: 5),
-                      Text(
-                        widget.news?.domain ?? 'Media',
-                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                      Flexible(
+                        child: Text(
+                          widget.news?.domain ?? 'Media',
+                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ],
                   ),
@@ -164,18 +136,16 @@ class _SelectedItemForGridState extends State<SelectedItemForGrid> {
             ],
           ),
           const SizedBox(height: 8),
-
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: Text(
-                  (context.watch<NewsProvider>().statucCode != 1)
+                  isTelegram
                       ? ((widget.news?.text ?? "").length > 35
                       ? "${widget.news!.text!.substring(0, 35)}..."
-                      : (widget.news?.title ?? ""))
+                      : (widget.news?.text ?? ""))
                       : (widget.news?.title ?? ""),
-
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
@@ -188,9 +158,8 @@ class _SelectedItemForGridState extends State<SelectedItemForGrid> {
                 const Icon(
                   Icons.bookmark,
                   color: Colors.amber,
-                  size: 20,
+                  size: 18,
                 ),
-
             ],
           ),
           const SizedBox(height: 4),
@@ -200,6 +169,44 @@ class _SelectedItemForGridState extends State<SelectedItemForGrid> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildMainImage(bool isTelegram) {
+    String? finalUrl = isTelegram ? imageUrlNews : widget.news?.imageUrl;
+
+    if (finalUrl == null || finalUrl.trim().isEmpty) {
+      return const Center(child: Icon(Icons.broken_image, color: Colors.grey));
+    }
+
+    return Image.network(
+      finalUrl,
+      headers: isTelegram && _token != null ? {'Authorization': "Bearer $_token"} : null,
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: double.infinity,
+      errorBuilder: (c, e, s) => const Icon(Icons.broken_image, color: Colors.grey),
+    );
+  }
+
+  Widget _buildChannelAvatar(bool isTelegram) {
+    if (isTelegram && imageUrlCover != null && imageUrlCover!.isNotEmpty && _token != null) {
+      return ClipOval(
+        child: Image.network(
+          imageUrlCover!,
+          headers: {'Authorization': "Bearer $_token"},
+          width: 16,
+          height: 16,
+          fit: BoxFit.cover,
+          errorBuilder: (c, e, s) => const Icon(Icons.account_circle, size: 16, color: Colors.grey),
+        ),
+      );
+    }
+    return Image.network(
+      domainImageUrl(widget.news?.domain ?? ''),
+      width: 14,
+      height: 14,
+      errorBuilder: (c, e, s) => const Icon(Icons.public, size: 14, color: Colors.grey),
     );
   }
 }

@@ -22,7 +22,7 @@ class HomeContent extends StatefulWidget {
 
 class _HomeContentState extends State<HomeContent> with AutomaticKeepAliveClientMixin {
   bool isGrid = false;
-  bool isShowMenu = false; // Menyu vəziyyəti
+  bool isShowMenu = false;
   int page = 1;
   late ScrollController _scrollController;
   late String formattedDate;
@@ -36,10 +36,11 @@ class _HomeContentState extends State<HomeContent> with AutomaticKeepAliveClient
 
     Future.microtask(() {
       final provider = Provider.of<NewsProvider>(context, listen: false);
-      if (provider.newsList == null || provider.newsList!.isEmpty) {
-        provider.statucCode == 1
-            ? provider.getAllnewsByStreamKeyword(page: 1, append: false)
-            : provider.getAllnewsByTelegram(page: 1, append: false);
+
+      if (provider.statucCode == 1) {
+        provider.getAllnewsByStreamKeyword(page: 1, append: false);
+      } else {
+        provider.getAllnewsByTelegram(page: 1, append: false);
       }
       final favouriteProvider = Provider.of<FavouriteProvider>(context, listen: false);
       favouriteProvider.getFavouriteNews(provider);
@@ -48,7 +49,6 @@ class _HomeContentState extends State<HomeContent> with AutomaticKeepAliveClient
     _loadTodayNews();
   }
 
-  // Deep Link idarəetməsi
   void _initDeepLinks() {
     final appLinks = AppLinks();
     appLinks.uriLinkStream.listen((uri) {
@@ -239,7 +239,6 @@ class _HomeContentState extends State<HomeContent> with AutomaticKeepAliveClient
                 ),
               ),
 
-            // Animasiyalı Menyu
             AnimationContainerInAppBar(
               isShowMenu: isShowMenu,
               onSelect: (selected) {

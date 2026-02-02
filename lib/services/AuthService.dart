@@ -129,5 +129,102 @@ class AuthService {
 
   }
 
+  static Future<String> RegisterInit(String? email) async {
+    try {
+      final response = await http.post(
+          Uri.parse("${AuthService.baseUrl}/register/init"),
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: jsonEncode({
+            "email": email
+          })
+      );
+
+      if (response.statusCode == 200) {
+        print("Sorgu:${response.body}");
+        return '';
+      } else {
+        print("Xəta kodu: ${response.statusCode}");
+        print("Xəta body: ${response.body}");
+        return response.body;
+      }
+    } catch (e) {
+      print("Exception: $e");
+      return jsonEncode({"error": "Bağlantı xətası baş verdi"});
+    }
+  }
+
+
+  static Future<String> checkOtp(String?email,String? otpCode)async{
+    try {
+      final response=await http.post(Uri.parse("${AuthService.baseUrl}/register/check_otp"),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },body: jsonEncode({
+            "email": email,
+            "otp_code":otpCode
+          })
+      );
+      if(response.statusCode==200){
+        print("ugurlu check otp :${response.body}");
+      return '';
+      }
+      else{
+        print("${response.body}");
+        return response.body;
+      }
+    }
+    catch (e){
+      throw Exception("Exception :${e}");
+
+    }
+  }
+
+  static Future<String> registerProfile(String? userName, String? name, String? email, String? surname, String pass) async {
+    try {
+      // 1. Ünvanı Swagger-də olduğu kimi SLASH-SIZ yazırıq
+      final url = Uri.parse("https://dev-api.mediaradar.io/register/final");
+
+      // 2. Standart post əvəzinə Client yaradırıq (Redirect-i idarə etmək üçün)
+      var client = http.Client();
+      var request = http.Request('POST', url);
+
+      // 3. Header-ləri Swagger/Curl ilə eyniləşdiririk
+      request.headers.addAll({
+        'accept': 'application/json',
+        'Content-Type': 'application/json',
+        // Bəzi serverlər User-Agent olmayanda redirect verir
+        'User-Agent': 'Mozilla/5.0',
+      });
+
+      request.body = jsonEncode({
+        "email": email?.trim(),
+        "username": userName?.trim(),
+        "name": name?.trim(),
+        "surname": surname?.trim(),
+        "password": pass
+      });
+
+      request.followRedirects = false;
+
+      final streamedResponse = await client.send(request);
+      final response = await http.Response.fromStream(streamedResponse);
+
+      print("Status Code: ${response.statusCode}");
+      print("Response Body: ${response.body}");
+
+      if (response.statusCode == 200 || response.statusCode == 201 || response.statusCode == 307) {
+        return "";
+      } else {
+        return response.body;
+      }
+    } catch (e) {
+      print("Xəta: $e");
+      return "Xəta: $e";
+    }
+  }
 
 }

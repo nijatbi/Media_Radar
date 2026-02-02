@@ -1,11 +1,7 @@
 import 'dart:convert';
-
-import 'package:flutter/cupertino.dart';
 import 'package:media_radar/models/New.dart';
 import 'package:http/http.dart' as http;
 import 'package:media_radar/services/AuthService.dart';
-
-import '../models/User.dart';
 import 'SecureStorageService.dart';
 
 class NewsService{
@@ -30,7 +26,6 @@ class NewsService{
       );
       if(response.statusCode==200){
         final List<dynamic> jsonData = jsonDecode(response.body);
-
         List<News> newsList = jsonData.map((e) => News.fromTelegramJson(e)).toList();
         return newsList;
       }

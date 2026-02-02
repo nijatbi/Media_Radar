@@ -52,6 +52,11 @@ class _SelectedItemForListState extends State<SelectedItemForList> {
     }
   }
 
+  String domainImageUrl(String img) {
+    String cleanDomain = img.replaceAll('https://', '').replaceAll('http://', '');
+    return 'https://www.google.com/s2/favicons?domain=$cleanDomain&sz=64';
+  }
+
   @override
   Widget build(BuildContext context) {
     final newsProvider = Provider.of<NewsProvider>(context, listen: false);
@@ -175,6 +180,18 @@ class _SelectedItemForListState extends State<SelectedItemForList> {
         ),
       );
     }
-    return const Icon(Icons.account_circle, size: 20, color: Colors.grey);
+
+    return Image.network(
+      domainImageUrl(widget.news!.domain.toString()),
+      width: 15,
+      height: 15,
+      errorBuilder: (context, error, stackTrace) {
+        return const Icon(
+            Icons.public,
+            size: 15,
+            color: Colors.grey
+        );
+      },
+    );
   }
 }

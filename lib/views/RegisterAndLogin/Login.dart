@@ -36,11 +36,11 @@ class _LoginPageState extends State<LoginPage> {
               children: [
                 const SizedBox(height: 80),
                 Container(
-                  width: 132,
-                  height: 38,
+                  width: 400,
+                  height: 100,
                   decoration: const BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage('assets/images/Group.png'),
+                      image: AssetImage('assets/images/MediaRadar_logo_png.jpg'),
                       fit: BoxFit.contain,
                     ),
                   ),

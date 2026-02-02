@@ -1,14 +1,37 @@
-gradle-wrapper.jar
-/.gradle
+# Memory dumps (Sənin aldığın xətanın qarşısını alan əsas hissə)
+*.hprof
+java_pid*
+
+# Gradle və Android müvəqqəti faylları
+.gradle/
+build/
 /captures/
+/.cxx/
+/local.properties
+gradle-wrapper.jar
 /gradlew
 /gradlew.bat
-/local.properties
-GeneratedPluginRegistrant.java
-.cxx/
 
-# Remember to never publicly share your keystore.
-# See https://flutter.dev/to/reference-keystore
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+
 key.properties
 **/*.keystore
 **/*.jks
+
+# IDE faylları
+.idea/
+.vscode/
+*.iml
+
+# Sistem faylları
+.DS_Store
+Thumbs.db
+
+# Flutter-in avtomatik yaratdığı fayllar
+GeneratedPluginRegistrant.java
