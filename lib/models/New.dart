@@ -34,77 +34,66 @@ class News {
     this.similarsCount,
     this.similarNews,
   });
-
   factory News.fromJson(Map<String, dynamic> json) {
+    List<News> parsedSimilars = [];
+
+    var similarData = json['similar_news'] ?? json['similarNews'];
+
+    if (similarData != null && similarData is List) {
+      parsedSimilars = similarData.map((item) {
+        final m = item as Map<String, dynamic>;
+        return News(
+          id: m['id'] as int?,
+          title: m['title'] as String?,
+          domain: m['domain'] as String?,
+          imageUrl: m['image_url'] as String?,
+          similarNews: [],
+          isSaved: m['is_saved'] as bool? ?? false,
+        );
+      }).toList();
+    }
+
     return News(
       id: json['id'] as int?,
-      domain: json['domain'] as String?,
-      url: json['url'] as String?,
       title: json['title'] as String?,
       text: json['text'] as String?,
-      publishedAt: json['published_at'] != null
-          ? DateTime.tryParse(json['published_at'].toString())
-          : null,
-      sentiment: json['sentiment'] as String?,
-      category: json['category'] as String?,
-      isPlagiat: json['is_plagiat'] is bool
-          ? json['is_plagiat']
-          : json['is_plagiat']?.toString() == 'true',
       imageUrl: json['image_url'] as String?,
-      scrapedAt: json['scraped_at'] != null
-          ? DateTime.tryParse(json['scraped_at'].toString())
-          : null,
-      isSaved: json['is_saved'] as bool?,
-      similarsCount: json['similars_count'] as int?,
-
-      similarNews: (json['similar_news'] != null && json['similar_news'] is List)
-          ? (json['similar_news'] as List)
-          .map((e) => News.fromJson(e as Map<String, dynamic>))
-          .toList()
-          : [],
+      url: json['url'] as String?,
+      category: json['category'] as String?,
+      similarNews: parsedSimilars,
+      domain: json['domain'] as String?,
+      isSaved: json['is_saved'] as bool? ?? false,
+      scrapedAt: json['scraped_at'] != null ? DateTime.tryParse(json['scraped_at'].toString()) : null,
     );
+  }
+
+  @override
+  String toString() {
+    return "Xəbər ID: $id | Oxşar sayı: ${similarNews?.length ?? 0}";
   }
 
   factory News.fromTelegramJson(Map<String, dynamic> json) {
     String? getFirstValidPath(dynamic images) {
       if (images is List && images.isNotEmpty) {
         final first = images[0]?.toString();
-        if (first == null || first.isEmpty || first.toLowerCase() == "null") {
-          return null;
-        }
+        if (first == null || first.isEmpty || first.toLowerCase() == "null") return null;
         return first;
       }
       return null;
     }
-
     return News(
-      id:  json['message_id'] as int?,
+      id: json['message_id'] as int?,
       domain: json['channel_name'] as String?,
       url: json['link_for_post'] as String?,
       title: json['channel_username'] as String?,
       text: json['post_content'] as String?,
-      channel_Id: json['channel_id']  ?? 0,
+      channel_Id: json['channel_id'] ?? 0,
       channelImage: getFirstValidPath(json['channel_image_filenames']),
       imageUrl: getFirstValidPath(json['post_image_filenames']),
-      publishedAt: json['post_publish_date'] != null
-          ? DateTime.tryParse(json['post_publish_date'].toString())
-          : null,
-      scrapedAt: json['post_scrape_date'] != null
-          ? DateTime.tryParse(json['post_scrape_date'].toString())
-          : null,
       isSaved: json['is_favourite'] as bool? ?? false,
-      category: '',
-      similarsCount: 0,
-      similarNews: (json['similar_news'] != null && json['similar_news'] is List)
-          ? (json['similar_news'] as List)
-          .map((e) => News.fromJson(e as Map<String, dynamic>))
-          .toList()
-          : [],
+      similarNews: [],
     );
   }
 
-  @override
-  String toString() {
-    return "${title} ${domain}";
-  }
+
 }

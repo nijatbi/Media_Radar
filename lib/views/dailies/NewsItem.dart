@@ -1,11 +1,14 @@
 import 'package:flutter/cupertino.dart' show CupertinoActivityIndicator;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:media_radar/constants/Constant.dart';
 import 'package:media_radar/providers/AuthProvider.dart';
 import 'package:media_radar/providers/FavouriteProvider.dart';
 import 'package:media_radar/providers/NewsProvider.dart';
+import 'package:media_radar/services/NewsService.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/New.dart';
 import '../../services/SecureStorageService.dart';
 
 class NewsItem extends StatefulWidget {
@@ -16,11 +19,13 @@ class NewsItem extends StatefulWidget {
   final int? channelId;
   final bool? isSaved;
   final int id;
+  final List<News>? similiarNews;
   final String? descFull;
 
   const NewsItem({
     super.key,
     this.image,
+    this.similiarNews,
     this.channelId,
     this.descFull,
     this.isSaved,
@@ -37,15 +42,35 @@ class NewsItem extends StatefulWidget {
 class _NewsItemState extends State<NewsItem> {
   String? _token;
   bool _isTokenLoaded = false;
+  List<News> similiarNews=[];
+
 
   @override
   void initState() {
     super.initState();
+    getSimiliarNews();
     _loadInitialData();
   }
 
+  Future<void> getSimiliarNews() async {
+    final response = await NewsService.getSimiliarsNews(widget.id);
+
+    if (response == null || response.isEmpty) {
+      if (mounted) {
+        setState(() {
+          similiarNews = [];
+        });
+      }
+    } else {
+      if (mounted) {
+        setState(() {
+          similiarNews = response;
+        });
+      }
+    }
+  }
+
   Future<void> _loadInitialData() async {
-    // Tokeni dərhal yükləyirik
     final token = await SecureStorageService.getToken();
     if (mounted) {
       setState(() {
@@ -116,8 +141,6 @@ class _NewsItemState extends State<NewsItem> {
     final newsProvider = Provider.of<NewsProvider>(context, listen: false);
     final favouriteProvider = Provider.of<FavouriteProvider>(context);
     final authProvider = Provider.of<AuthProvider>(context);
-
-    // Keyword hesablama məntiqi
     List<String> allKeywords = [];
     if (authProvider.user?.streams != null) {
       for (var stream in authProvider.user!.streams!) {
@@ -134,9 +157,7 @@ class _NewsItemState extends State<NewsItem> {
       final pattern = RegExp('($patternString)', caseSensitive: false);
       foundCount = pattern.allMatches(widget.text!).length;
     }
-
     final bool isSavedLocally = favouriteProvider.isItemSaved(widget.id);
-
     return Scaffold(
       backgroundColor: Colors.white,
       extendBodyBehindAppBar: true,
@@ -209,6 +230,20 @@ class _NewsItemState extends State<NewsItem> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      widget.similiarNews!.isNotEmpty
+                          ? Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(25),
+                    color: Constant.baseColor,
+                  ),
+                  child: Text(
+                    '${widget.similiarNews!.length} Oxşar xəbər',
+                    style: const TextStyle(fontSize: 10, color: Colors.white),
+                  ),
+                )
+                          : const SizedBox.shrink(),
+                      SizedBox(height: 20,),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [

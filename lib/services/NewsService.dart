@@ -38,6 +38,7 @@ class NewsService{
     String? endDate,
     int page = 1,
   })async{
+
     final token=await SecureStorageService.getToken();
     if(token==null) {
       return [];
@@ -45,7 +46,7 @@ class NewsService{
     else{
       final response=await
       http
-          .get(Uri.parse("${AuthService.baseUrl}/news/all_news_by_stream_keywords?start_date=${startDate}&end_date=${endDate}&page=${page}&is_grouped=${false}&is_selected=${false}"),
+          .get(Uri.parse("${AuthService.baseUrl}/news/all_news_by_stream_keywords?start_date=${startDate}&end_date=${endDate}&page=${page}&is_grouped=${true}&is_selected=${false}"),
       headers: {
         'Accept': 'application/json',
         'Authorization': "Bearer $token",
@@ -53,7 +54,8 @@ class NewsService{
       );
       if(response.statusCode==200){
         final List<dynamic> jsonData = jsonDecode(response.body);
-        return jsonData.map((e) => News.fromJson(e)).toList();
+        final result=jsonData.map((e) => News.fromJson(e)).toList();
+        return result;
       }
       return [];
     }
@@ -63,4 +65,34 @@ class NewsService{
     if (path == null || path.isEmpty) return "";
     return "${AuthService.baseUrl}/tg/get_image_by_filename?filename=${Uri.encodeComponent(path)}";
   }
+
+  static Future<List<News>> getSimiliarsNews(int id) async {
+    try {
+      print('Sorgu basladi');
+      final token = await SecureStorageService.getToken();
+      if (token == null) return [];
+
+      final response = await http.get(
+        Uri.parse("${AuthService.baseUrl}/news/find_similar_news_by_id?id_=$id"),
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': "Bearer $token",
+        },
+      );
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        print('Oxsar xeberler :${jsonData}');
+        if (jsonData is List) {
+          return jsonData.map((e) => News.fromJson(e as Map<String, dynamic>)).toList();
+        } else if (jsonData is Map && jsonData.containsKey('data')) {
+          return (jsonData['data'] as List).map((e) => News.fromJson(e)).toList();
+        }
+      }
+      return [];
+    } catch (e) {
+      print("Servis xətası: $e");
+      return [];
+    }
+  }
+
 }

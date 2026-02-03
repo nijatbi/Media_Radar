@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:media_radar/models/New.dart';
 import 'package:media_radar/providers/NewsProvider.dart';
 import 'package:media_radar/services/SecureStorageService.dart';
 import 'package:provider/provider.dart';
@@ -14,10 +15,12 @@ class DailyNewItem extends StatefulWidget {
   final String date;
   final bool? isSaved;
   final int id;
+  final List<News>? similiarNews;
   final String? categoryName;
 
   const DailyNewItem({
     super.key,
+    this.similiarNews,
     this.categoryName,
     this.descFull,
     required this.imageUrl,
@@ -110,7 +113,9 @@ class _DailyNewItemState extends State<DailyNewItem> {
     };
 
     return GestureDetector(
-      onTap: () {
+      onTap: ()async {
+        final similiarNews=await NewsService.getSimiliarsNews(widget.id!);
+
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -120,6 +125,7 @@ class _DailyNewItemState extends State<DailyNewItem> {
               id: widget.id,
               text: widget.desc ?? "",
               isSaved: widget.isSaved,
+              similiarNews: similiarNews ?? [],
               date: widget.date,
             ),
           ),

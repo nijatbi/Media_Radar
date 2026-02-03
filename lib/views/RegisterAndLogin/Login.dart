@@ -140,7 +140,11 @@ class _LoginPageState extends State<LoginPage> {
                               const Text("Məni xatırla", style: TextStyle(fontSize: 13)),
                             ],
                           ),
-                          Constant.forgotPaswordText,
+                          GestureDetector(
+                              onTap: (){
+                                Navigator.pushNamed(context, '/forgotPass');
+                              },
+                              child: Constant.forgotPaswordText),
                         ],
                       ),
                       const SizedBox(height: 30),

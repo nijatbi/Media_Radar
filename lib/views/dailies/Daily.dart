@@ -144,6 +144,7 @@ class _DailyState extends State<Daily> {
                             categoryName: item.category ?? "Gündəm",
                             date: item.scrapedAt?.toString().split('.').first ?? "",
                             desc: rawText,
+                            similiarNews: item.similarNews!,
                             id: item.id!,
                           );
                         },

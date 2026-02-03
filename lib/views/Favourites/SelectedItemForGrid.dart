@@ -70,7 +70,8 @@ class _SelectedItemForGridState extends State<SelectedItemForGrid> {
     final bool isSavedLocally = favouriteProvider.isItemSaved(widget.news?.id ?? 0);
 
     return GestureDetector(
-      onTap: () {
+      onTap: () async{
+        final similiarNews=await NewsService.getSimiliarsNews(widget.news!.id!);
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -79,6 +80,7 @@ class _SelectedItemForGridState extends State<SelectedItemForGrid> {
               title: widget.news!.title,
               id: widget.news!.id!,
               text: widget.news!.text,
+              similiarNews: similiarNews ?? [],
               channelId: widget.news!.channel_Id,
               isSaved: widget.news!.isSaved,
               date: widget.news!.scrapedAt.toString(),

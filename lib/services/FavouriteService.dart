@@ -5,7 +5,6 @@ import 'package:media_radar/services/SecureStorageService.dart';
 import '../models/New.dart';
 
 class FavouriteService {
-  // 1. Ana xəbərləri favorita əlavə etmək
   static Future<bool> addNewsToFavService(int? id) async {
     final token = await SecureStorageService.getToken();
     if (token == null || id == null) return false;
@@ -26,7 +25,6 @@ class FavouriteService {
     }
   }
 
-  // 2. Ana xəbərləri favoritdən silmək
   static Future<bool> deleteNewsFromMain(int? id) async {
     try {
       final token = await SecureStorageService.getToken();
@@ -50,7 +48,6 @@ class FavouriteService {
     }
   }
 
-  // 3. Ana xəbərlərin favorit siyahısını çəkmək
   static Future<List<News>> getNewsFromMain() async {
     try {
       final token = await SecureStorageService.getToken();
@@ -82,7 +79,6 @@ class FavouriteService {
     }
   }
 
-  // 4. Telegram favorit siyahısını çəkmək
   static Future<List<News>> getNewsFromTelegram() async {
     try {
       final token = await SecureStorageService.getToken();
@@ -113,12 +109,10 @@ class FavouriteService {
     }
   }
 
-  // 5. Telegram xəbərini favorita əlavə etmək (DÜZƏLDİLDİ: toString() əlavə edildi)
   static Future<bool> addNewsToFavTelegramService(int? channelId, int? postId) async {
     final token = await SecureStorageService.getToken();
     if (token == null || channelId == null || postId == null) return false;
 
-    // BURADA channelId və postId-ni .toString() etdik ki, 'int' xətası verməsin
     final url = Uri.parse("${AuthService.baseUrl}/tg/add_favourite_post_or_reply").replace(
       queryParameters: {
         "source_id": channelId.toString(),
@@ -141,13 +135,11 @@ class FavouriteService {
     }
   }
 
-  // 6. Telegram xəbərini favoritdən silmək (DÜZƏLDİLDİ: URL formatı təkmilləşdirildi)
   static Future<bool> deleteNewsFromTelegram(int? channelId, int? postId) async {
     try {
       final token = await SecureStorageService.getToken();
       if (token == null || channelId == null || postId == null) return false;
 
-      // Manuel string birləşdirmə yerinə daha etibarlı olan .replace istifadə etdik
       final url = Uri.parse("${AuthService.baseUrl}/tg/delete_favourite").replace(
         queryParameters: {
           "source_id": channelId.toString(),

@@ -6,6 +6,8 @@ import 'package:media_radar/views/RegisterAndLogin/Register.dart';
 import 'package:media_radar/views/accounts/Account.dart';
 import 'package:media_radar/views/accounts/Profile.dart';
 import 'package:media_radar/views/dailies/NewsItem.dart';
+import 'package:media_radar/views/forgots/ForgotOtp.dart';
+import 'package:media_radar/views/forgots/ForgotInit.dart';
 
 class RouteGenerator {
   static Route<dynamic> routeGenerator(RouteSettings settings) {
@@ -19,6 +21,11 @@ class RouteGenerator {
       case '/otpRegister':
         var emailAdres=settings.arguments as String;
         return MaterialPageRoute(builder: (context) =>  OtpRegister(email:emailAdres ));
+      case '/forgotPass':
+        return MaterialPageRoute(builder: (context) => const ForgotInit());
+      case '/forgotOTP':
+        var emailAdres=settings.arguments as String;
+        return MaterialPageRoute(builder: (context) =>  ForgotOTP(email:emailAdres ));
       case '/account':
         return MaterialPageRoute(builder: (context) => const Account());
       case '/profile':
@@ -27,7 +34,6 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (context) => const Profile());
       case '/selectedList':
         return MaterialPageRoute(builder: (context) => const SelectedList());
-
       case '/newsItem':
         if (args is Map<String, dynamic>) {
           return MaterialPageRoute(

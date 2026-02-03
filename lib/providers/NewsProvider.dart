@@ -30,7 +30,6 @@ class NewsProvider extends ChangeNotifier {
       getAllnewsByTelegram(page:1,append: false);
       notifyListeners();
     }
-    print("Status code : ${statucCode}");
   }
 
   Future<void> getAllnewsByStreamKeyword({

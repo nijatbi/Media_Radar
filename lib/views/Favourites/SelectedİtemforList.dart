@@ -64,7 +64,9 @@ class _SelectedItemForListState extends State<SelectedItemForList> {
     final favouriteProvider=Provider.of<FavouriteProvider>(context,listen: true);
     final bool isSavedLocally = favouriteProvider.isItemSaved(widget.news!.id!);
     return GestureDetector(
-      onTap: (){
+      onTap: ()async{
+        final similiarNews=await NewsService.getSimiliarsNews(widget.news!.id!);
+
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -75,6 +77,7 @@ class _SelectedItemForListState extends State<SelectedItemForList> {
               text:  widget.news!.text ,
               channelId: widget.news!.channel_Id,
               isSaved: widget.news!.isSaved,
+              similiarNews: similiarNews ?? [] ,
               date: widget.news!.scrapedAt.toString(),
             ),
           ),

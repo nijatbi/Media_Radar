@@ -25,7 +25,6 @@ class AuthService {
     );
 
     if (response.statusCode == 200) {
-      print('SUCCESS: ${response.body}');
       return response.body;
     } else {
       print('ERROR ${response.statusCode}: ${response.body}');
@@ -185,18 +184,14 @@ class AuthService {
 
   static Future<String> registerProfile(String? userName, String? name, String? email, String? surname, String pass) async {
     try {
-      // 1. Ünvanı Swagger-də olduğu kimi SLASH-SIZ yazırıq
       final url = Uri.parse("https://dev-api.mediaradar.io/register/final");
 
-      // 2. Standart post əvəzinə Client yaradırıq (Redirect-i idarə etmək üçün)
       var client = http.Client();
       var request = http.Request('POST', url);
 
-      // 3. Header-ləri Swagger/Curl ilə eyniləşdiririk
       request.headers.addAll({
         'accept': 'application/json',
         'Content-Type': 'application/json',
-        // Bəzi serverlər User-Agent olmayanda redirect verir
         'User-Agent': 'Mozilla/5.0',
       });
 
@@ -224,6 +219,90 @@ class AuthService {
     } catch (e) {
       print("Xəta: $e");
       return "Xəta: $e";
+    }
+  }
+
+  static Future<String> ForgotInit(String? email) async {
+    try {
+      final response = await http.post(
+          Uri.parse("${AuthService.baseUrl}/reset/init"),
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: jsonEncode({
+            "email": email
+          })
+      );
+
+      if (response.statusCode == 200) {
+        print("Sorgu:${response.body}");
+        return '';
+      } else {
+        print("Xəta kodu: ${response.statusCode}");
+        print("Xəta body: ${response.body}");
+        return response.body;
+      }
+    } catch (e) {
+      print("Exception: $e");
+      return jsonEncode({"error": "Bağlantı xətası baş verdi"});
+    }
+  }
+
+
+  static Future<String> forgotOtp(String?email,String? otpCode)async{
+    try {
+      final response=await http.post(Uri.parse("${AuthService.baseUrl}/reset/check_otp"),
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },body: jsonEncode({
+            "email": email,
+            "otp_code":otpCode
+          })
+      );
+      if(response.statusCode==200){
+        print("ugurlu check otp :${response.body}");
+        return '';
+      }
+      else{
+        print("${response.body}");
+        return response.body;
+      }
+    }
+    catch (e){
+      throw Exception("Exception :${e}");
+
+    }
+  }
+
+  static Future<String> changePass(String email,String newPass,String repeatPass)async{
+    try {
+      final response=await http.post(Uri.parse("${AuthService.baseUrl}/reset/final"),
+      headers: {
+        'accept': 'application/json',
+        'Content-Type': 'application/json',
+      },body: jsonEncode({
+            "email":email,
+            "new_password":newPass,
+            "confirm_password":repeatPass
+          })
+      );
+      print("Sending Body: ${jsonEncode({
+        "email": email,
+        "new_password": newPass,
+        "confirm_password": repeatPass
+      })}");
+      if(response.statusCode==200){
+        return '';
+      }
+      else{
+        print("Xeta:${response.body}");
+        return response.body;
+      }
+    }
+    catch (e){
+      throw Exception("Xeta bas verdi :${e}");
     }
   }
 

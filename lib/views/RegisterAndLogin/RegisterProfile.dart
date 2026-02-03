@@ -33,13 +33,12 @@ class _RegisterprofileState extends State<Registerprofile> {
     return null;
   }
 
-  // Uğur Dialogunu göstərən funksiya
   void _showSuccessDialog() {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) {
-        // 5 saniyə sonra Login səhifəsinə yönləndirmə
+
         Timer(const Duration(seconds: 5), () {
           if (mounted) {
             Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
@@ -89,7 +88,7 @@ class _RegisterprofileState extends State<Registerprofile> {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
-        erorText = ''; // Hər dəfə yeni sorğuda xətanı təmizləyirik
+        erorText = '';
       });
 
       try {
