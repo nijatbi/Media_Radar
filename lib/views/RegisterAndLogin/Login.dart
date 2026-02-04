@@ -207,8 +207,8 @@ class _LoginPageState extends State<LoginPage> {
       setState(() => _isLoading = true);
       try {
         final response = await AuthService.login(
-          usernameController.text,
-          passwordController.text,
+          usernameController.text.trim(),
+          passwordController.text.trim(),
         );
 
         final Map<String, dynamic> data = jsonDecode(response);

@@ -86,6 +86,7 @@ class News {
       domain: json['channel_name'] as String?,
       url: json['link_for_post'] as String?,
       title: json['channel_username'] as String?,
+      scrapedAt: json['post_scrape_date'] != null ? DateTime.tryParse(json['post_scrape_date'].toString()) : null,
       text: json['post_content'] as String?,
       channel_Id: json['channel_id'] ?? 0,
       channelImage: getFirstValidPath(json['channel_image_filenames']),

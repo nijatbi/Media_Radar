@@ -78,6 +78,7 @@ class _SelectedItemForListState extends State<SelectedItemForList> {
               channelId: widget.news!.channel_Id,
               isSaved: widget.news!.isSaved,
               similiarNews: similiarNews ?? [] ,
+              categoryName: widget.news!.category ?? 'Gündəm',
               date: widget.news!.scrapedAt.toString(),
             ),
           ),

@@ -81,6 +81,7 @@ class _SelectedItemForGridState extends State<SelectedItemForGrid> {
               id: widget.news!.id!,
               text: widget.news!.text,
               similiarNews: similiarNews ?? [],
+              categoryName: widget.news!.category ?? 'Gündəm',
               channelId: widget.news!.channel_Id,
               isSaved: widget.news!.isSaved,
               date: widget.news!.scrapedAt.toString(),

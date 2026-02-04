@@ -68,7 +68,6 @@ class NewsService{
 
   static Future<List<News>> getSimiliarsNews(int id) async {
     try {
-      print('Sorgu basladi');
       final token = await SecureStorageService.getToken();
       if (token == null) return [];
 
@@ -81,7 +80,6 @@ class NewsService{
       );
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
-        print('Oxsar xeberler :${jsonData}');
         if (jsonData is List) {
           return jsonData.map((e) => News.fromJson(e as Map<String, dynamic>)).toList();
         } else if (jsonData is Map && jsonData.containsKey('data')) {

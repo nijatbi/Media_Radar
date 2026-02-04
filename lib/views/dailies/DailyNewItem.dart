@@ -12,6 +12,7 @@ class DailyNewItem extends StatefulWidget {
   final String title;
   final String? desc;
   final String? descFull;
+  final String? domainName;
   final String date;
   final bool? isSaved;
   final int id;
@@ -25,6 +26,7 @@ class DailyNewItem extends StatefulWidget {
     this.descFull,
     required this.imageUrl,
     required this.coverImage,
+    this.domainName,
      this.isSaved,
     required this.title,
     this.desc,
@@ -105,6 +107,10 @@ class _DailyNewItemState extends State<DailyNewItem> {
     }
   }
 
+  String domainImageUrl(String domain) {
+    String cleanDomain = domain.replaceAll('https://', '').replaceAll('http://', '').split('/').first;
+    return 'https://www.google.com/s2/favicons?domain=$cleanDomain&sz=64';
+  }
   @override
   Widget build(BuildContext context) {
     final Map<String, String> headers = {
@@ -124,6 +130,7 @@ class _DailyNewItemState extends State<DailyNewItem> {
               title: widget.title,
               id: widget.id,
               text: widget.desc ?? "",
+              categoryName: widget.categoryName ?? 'Gündəm',
               isSaved: widget.isSaved,
               similiarNews: similiarNews ?? [],
               date: widget.date,
@@ -213,12 +220,14 @@ class _DailyNewItemState extends State<DailyNewItem> {
               height: 24,
               decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
               child: ClipOval(
-                child: _isValidUrl(finalCoverUrl)
+                child: _isValidUrl(widget.domainName) || (widget.domainName != null && widget.domainName!.isNotEmpty)
                     ? Image.network(
-                  finalCoverUrl!,
-                  headers: headers,
+                  domainImageUrl(widget.domainName!),
                   fit: BoxFit.cover,
-                  errorBuilder: (c, e, s) => const Icon(Icons.person, size: 15),
+                  errorBuilder: (c, e, s) {
+                    debugPrint("Favicon error: $e");
+                    return const Icon(Icons.public, size: 15, color: Colors.grey);
+                  },
                 )
                     : const Icon(Icons.person, size: 15, color: Colors.grey),
               ),
@@ -226,7 +235,7 @@ class _DailyNewItemState extends State<DailyNewItem> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                widget.title,
+                widget.domainName!,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(

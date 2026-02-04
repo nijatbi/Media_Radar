@@ -8,22 +8,20 @@ import 'package:media_radar/routes.dart';
 import 'package:media_radar/views/HomePages/RootPage.dart';
 import 'package:media_radar/views/RegisterAndLogin/Login.dart';
 import 'package:media_radar/views/HomePages/HomePage.dart';
+import 'package:media_radar/views/searchPages/AdvancedSearchPanel.dart';
 import 'package:provider/provider.dart';
+
+
 
 class MyHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {
     return super.createHttpClient(context)
-      ..badCertificateCallback =
-          (X509Certificate cert, String host, int port) => true;
+      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
   }
 }
-
-
 void main() {
-  if (!kReleaseMode) {
-    HttpOverrides.global = MyHttpOverrides();
-  }
+  HttpOverrides.global = MyHttpOverrides();
   runApp(
     MultiProvider(
       providers: [
@@ -53,7 +51,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Media Radar',
       debugShowCheckedModeBanner: false,
-      home: const RootPage(),
+      // home: const RootPage(),
+      home: AdvancedSearchPanel(),
       onGenerateRoute: RouteGenerator.routeGenerator,
     );
   }

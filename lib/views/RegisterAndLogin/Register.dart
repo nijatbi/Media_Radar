@@ -163,7 +163,7 @@ class _RegisterState extends State<Register> {
     if (_formKey.currentState!.validate()) {
       setState(() { _isLoading = true; });
 
-      final registerInit = await AuthService.RegisterInit(_emailController.text);
+      final registerInit = await AuthService.RegisterInit(_emailController.text.trim());
 
       setState(() { _isLoading = false; });
 

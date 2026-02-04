@@ -18,7 +18,9 @@ class _ForgotPassState extends State<ForgotPass> {
   final _formKey = GlobalKey<FormState>();
 
   String errorText = '';
-  bool _obscureText = true;
+  bool _obscureText1 = true;
+  bool _obscureText2 = true;
+
   bool _isLoading = false;
 
   String? _validatePassword(String? value) {
@@ -156,6 +158,7 @@ class _ForgotPassState extends State<ForgotPass> {
                       label: "Yeni Şifrə",
                       controller: _passContrl,
                       validator: _validatePassword,
+                      obsureText: _obscureText1
                     ),
                     const SizedBox(height: 20),
                     _buildPasswordField(
@@ -166,6 +169,8 @@ class _ForgotPassState extends State<ForgotPass> {
                         if (value != _passContrl.text) return 'Şifrələr uyğun gəlmir';
                         return null;
                       },
+                        obsureText: _obscureText2
+
                     ),
 
                     if (errorText.isNotEmpty) ...[
@@ -213,6 +218,7 @@ class _ForgotPassState extends State<ForgotPass> {
   }
 
   Widget _buildPasswordField({
+    required bool obsureText,
     required String label,
     required TextEditingController controller,
     required String? Function(String?) validator,
@@ -223,7 +229,7 @@ class _ForgotPassState extends State<ForgotPass> {
         Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
         const SizedBox(height: 10),
         TextFormField(
-          obscureText: _obscureText,
+          obscureText: obsureText,
           controller: controller,
           decoration: InputDecoration(
             hintText: label,
@@ -247,8 +253,8 @@ class _ForgotPassState extends State<ForgotPass> {
               borderSide: const BorderSide(color: Colors.red, width: 1.5),
             ),
             suffixIcon: IconButton(
-              onPressed: () => setState(() => _obscureText = !_obscureText),
-              icon: Icon(_obscureText ? Icons.visibility : Icons.visibility_off, size: 20),
+              onPressed: () => setState(() => obsureText = !obsureText),
+              icon: Icon(obsureText ? Icons.visibility : Icons.visibility_off, size: 20),
             ),
           ),
           validator: validator,

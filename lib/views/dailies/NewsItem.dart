@@ -6,6 +6,7 @@ import 'package:media_radar/providers/AuthProvider.dart';
 import 'package:media_radar/providers/FavouriteProvider.dart';
 import 'package:media_radar/providers/NewsProvider.dart';
 import 'package:media_radar/services/NewsService.dart';
+import 'package:media_radar/views/Favourites/Selected%C4%B0temforList.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/New.dart';
@@ -18,6 +19,7 @@ class NewsItem extends StatefulWidget {
   final String date;
   final int? channelId;
   final bool? isSaved;
+  final String? categoryName;
   final int id;
   final List<News>? similiarNews;
   final String? descFull;
@@ -29,6 +31,7 @@ class NewsItem extends StatefulWidget {
     this.channelId,
     this.descFull,
     this.isSaved,
+    this.categoryName,
     this.title,
     this.text,
     required this.id,
@@ -136,6 +139,87 @@ class _NewsItemState extends State<NewsItem> {
     });
   }
 
+
+  void showModalSimiliarNews(BuildContext context){
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, modalSetState) {
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.6,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Stack(
+                  children: [
+                    SingleChildScrollView(
+                      padding: const EdgeInsets.only(bottom: 100),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 12),
+                          Center(
+                            child: Container(
+                              width: 80,
+                              height: 4,
+                              decoration: BoxDecoration(
+                                color: Colors.black26,
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 30),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                               Text(
+                                'Oxşar xəbərlər ${widget.similiarNews!.length}',
+                                style: TextStyle(
+                                    fontSize: 15, fontWeight: FontWeight.w500),
+                              ),
+                              GestureDetector(
+                                onTap: () => Navigator.pop(context),
+                                child: Text(
+                                  'İmtina et',
+                                  style: TextStyle(
+                                      fontSize: 15, color: Constant.baseColor),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 30),
+
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: widget.similiarNews!.length,
+                            itemBuilder: (context, index) {
+                              return SelectedItemForList(news: widget.similiarNews![index]);
+                            },
+                          )
+
+
+                        ],
+                      ),
+                    ),
+
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final newsProvider = Provider.of<NewsProvider>(context, listen: false);
@@ -226,24 +310,33 @@ class _NewsItemState extends State<NewsItem> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(20.0),
+                  padding: const EdgeInsets.only(left: 20,right: 20,top: 10),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       widget.similiarNews!.isNotEmpty
-                          ? Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(25),
-                    color: Constant.baseColor,
-                  ),
-                  child: Text(
-                    '${widget.similiarNews!.length} Oxşar xəbər',
-                    style: const TextStyle(fontSize: 10, color: Colors.white),
-                  ),
-                )
+                          ? Column(
+                            children: [
+                              GestureDetector(
+                                onTap: (){
+                                  showModalSimiliarNews(context);
+                                },
+                                child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                                        decoration: BoxDecoration(
+                                             borderRadius: BorderRadius.circular(25),
+                                         color: Constant.baseColor,
+                                          ),
+                                          child: Text(
+                                         '${widget.similiarNews!.length} Oxşar xəbər',
+                                       style: const TextStyle(fontSize: 14, color: Colors.white),
+                                       ),
+                                                            ),
+                              ),
+                              SizedBox(height: 20,),
+                            ],
+                          )
                           : const SizedBox.shrink(),
-                      SizedBox(height: 20,),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -253,7 +346,7 @@ class _NewsItemState extends State<NewsItem> {
                               color: Colors.green.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: const Text("Gündəm", style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+                            child:  Text("${widget.categoryName!}", style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
                           ),
                           Text(_formatDate(widget.date), style: const TextStyle(color: Colors.grey, fontSize: 13)),
                         ],

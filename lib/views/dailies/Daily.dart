@@ -2,6 +2,7 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:media_radar/providers/NewsProvider.dart';
 import 'package:media_radar/views/dailies/DailyNewItem.dart';
+import 'package:media_radar/views/searchPages/AdvancedSearchPanel.dart';
 import 'package:provider/provider.dart';
 import '../../constants/Constant.dart';
 // Menyu və pəncərələr üçün lazımi importlar
@@ -74,7 +75,7 @@ class _DailyState extends State<Daily> {
                 ),
 
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding: const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 0),
                   child: Text(
                     'Gündəm',
                     style: TextStyle(
@@ -111,50 +112,54 @@ class _DailyState extends State<Daily> {
                     }
 
                     return Expanded(
-                      child: Swiper(
-                        itemCount: filteredNews.length,
-                        layout: SwiperLayout.STACK,
-                        itemWidth: screenWidth * 0.88,
-                        itemHeight: screenHeight * 0.6,
-                        onIndexChanged: (index) {
-                          setState(() => _currentIndex = index);
-                        },
-                        customLayoutOption: CustomLayoutOption(
-                          startIndex: -1,
-                          stateCount: 3,
-                        )
-                          ..addTranslate([
-                            const Offset(0, 0),
-                            const Offset(0, 28),
-                            const Offset(0, 56),
-                          ])
-                          ..addScale([1.0, 0.94, 0.88], Alignment.center),
-                        itemBuilder: (context, index) {
-                          final item = filteredNews[index];
-                          String rawText = item.text ?? "";
-                          String displayTitle = provider.statucCode == 1
-                              ? (item.title ?? "")
-                              : (rawText.length > 35 ? "${rawText.substring(0, 35)}..." : rawText);
+                      child: Transform.translate(
+                        offset: const Offset(0, -30),
+                        child: Swiper(
+                          itemCount: filteredNews.length,
+                          layout: SwiperLayout.STACK,
+                          itemWidth: screenWidth * 0.88,
+                          itemHeight: screenHeight * 0.6,
+                          onIndexChanged: (index) {
+                            setState(() => _currentIndex = index);
+                          },
+                          customLayoutOption: CustomLayoutOption(
+                            startIndex: -1,
+                            stateCount: 3,
+                          )
+                            ..addTranslate([
+                              const Offset(0, 0),
+                              const Offset(0, 28),
+                              const Offset(0, 56),
+                            ])
+                            ..addScale([1.0, 0.94, 0.88], Alignment.center),
+                          itemBuilder: (context, index) {
+                            final item = filteredNews[index];
+                            String rawText = item.text ?? "";
+                            String displayTitle = provider.statucCode == 1
+                                ? (item.title ?? "")
+                                : (rawText.length > 35 ? "${rawText.substring(0, 35)}..." : rawText);
 
-                          return DailyNewItem(
-                            imageUrl: item.imageUrl!,
-                            coverImage: item.channelImage ?? "",
-                            title: displayTitle,
-                            isSaved: item.isSaved!,
-                            categoryName: item.category ?? "Gündəm",
-                            date: item.scrapedAt?.toString().split('.').first ?? "",
-                            desc: rawText,
-                            similiarNews: item.similarNews!,
-                            id: item.id!,
-                          );
-                        },
-                        pagination: const SwiperPagination(
-                          alignment: Alignment.bottomCenter,
-                          builder: DotSwiperPaginationBuilder(
-                            color: Colors.grey,
-                            activeColor: Colors.green,
-                            size: 8,
-                            activeSize: 10,
+                            return DailyNewItem(
+                              imageUrl: item.imageUrl!,
+                              coverImage: item.channelImage ?? "",
+                              title: displayTitle,
+                              isSaved: item.isSaved!,
+                              categoryName: item.category ?? "Gündəm",
+                              date: item.scrapedAt?.toString().split('.').first ?? "",
+                              desc: rawText,
+                              similiarNews: item.similarNews!,
+                              id: item.id!,
+                              domainName: item.domain! ?? '',
+                            );
+                          },
+                          pagination: const SwiperPagination(
+                            alignment: Alignment.bottomCenter,
+                            builder: DotSwiperPaginationBuilder(
+                              color: Colors.grey,
+                              activeColor: Colors.green,
+                              size: 8,
+                              activeSize: 10,
+                            ),
                           ),
                         ),
                       ),

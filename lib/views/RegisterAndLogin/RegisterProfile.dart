@@ -93,11 +93,11 @@ class _RegisterprofileState extends State<Registerprofile> {
 
       try {
         var response = await AuthService.registerProfile(
-          _userNameContrl.text,
-          _nameController.text,
-          widget.email,
-          _surnameController.text,
-          _passContrl.text,
+          _userNameContrl.text.trim(),
+          _nameController.text.trim(),
+          widget.email.trim(),
+          _surnameController.text.trim(),
+          _passContrl.text.trim(),
         );
 
         if (response == "") {
