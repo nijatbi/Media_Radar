@@ -51,8 +51,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Media Radar',
       debugShowCheckedModeBanner: false,
-      // home: const RootPage(),
-      home: AdvancedSearchPanel(),
+      home: const RootPage(),
+      // home: AdvancedSearchPanel(),
       onGenerateRoute: RouteGenerator.routeGenerator,
     );
   }

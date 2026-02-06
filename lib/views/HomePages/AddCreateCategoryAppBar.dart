@@ -46,6 +46,7 @@ void addCategoryAppBar(BuildContext context) {
     );
   }
 
+
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
